@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "ciudad": "Santo Domingo de los Tsáchilas",
+    "fuente": "EPMT-SD - Empresa Pública Municipal Transporte Terrestre y Tránsito",
+    "tipo": "Anexo A Rotativo Provisional - Red Convencional",
+    "operadoras": ["TRANSMETRO", "EJECUTTRANS"],
+    "notas": "La operadora rota semanalmente salvo líneas de operadora fija"
+  },
+  "lineas": [
+    {
+      "id": "06A",
+      "nombre": "Centro de Rehabilitación - Terminal Terrestre",
+      "servicio": "A",
+      "linea_grupo": "06",
+      "operadora_tipo": "rotativa",
+      "operadora_semana_impar": "TRANSMETRO",
+      "operadora_semana_par": "EJECUTTRANS",
+      "horario_inicio": "05:30",
+      "horario_fin": "20:15",
+      "intervalo_min": 12,
+      "tiempo_ciclo_min": 69,
+      "velocidad_kmh": 19.5,
+      "unidades": 6,
+      "km_ida": 11.06,
+      "km_retorno": 11.38,
+      "demanda_pasajeros": 5413,
+      "terminal_principal": "Centro de Rehabilitación",
+      "terminal_secundario": "Terminal Terrestre",
+      "paradas_ida": [
+        "Calle S/N (Centro de Rehabilitación)",
+        "Av. de los Anturios (Coop. Nuevo Amanecer)",
+        "Av. de los Anturios (Coop. Alejandro Montesdeoca)",
+        "Av. Quevedo",
+        "Av. Esmeraldas",
+        "Redondel del Terminal T."
+      ],
+      "paradas_retorno": [
+        "Redondel del Terminal T.",
+        "Av. Esmeraldas",
+        "Av. Quevedo",
+        "Calle 12 (Com. Unión Cívica Popular)",
+        "Calle S/N (Com. Vivienda Sagradas Escrituras)",
+        "Calle S/N (Centro de Rehabilitación)"
+      ],
+      "destinos_clave": ["Terminal Terrestre", "Centro de Rehabilitación"]
+    },
+    {
+      "id": "06B",
+      "nombre": "Unión Cívica Popular - Terminal Terrestre",
+      "servicio": "B",
+      "linea_grupo": "06",
+      "operadora_tipo": "rotativa",
+      "operadora_semana_impar": "TRANSMETRO",
+      "operadora_semana_par": "EJECUTTRANS",
+      "horario_inicio": "05:49",
+      "horario_fin": "21:00",
+      "intervalo_min": 12,
+      "tiempo_ciclo_min": 69,
+      "velocidad_kmh": 19.5,
+      "unidades": 6,
+      "km_ida": 9.58,
+      "km_retorno": 9.56,
+      "demanda_pasajeros": 5299,
+      "terminal_principal": "Unión Cívica Popular",
+      "terminal_secundario": "Terminal Terrestre",
+      "paradas_ida": [
+        "Calle S/N (Centro de Rehabilitación)",
+        "Calle S/N (Com. de Vivienda Sagradas Escrituras)",
+        "Calle 12 (Com. Unión Cívica Popular)",
+        "Av. Quevedo",
+        "Av. Esmeraldas",
+        "Redondel del Terminal Terrestre"
+      ],
+      "paradas_retorno": [
+        "Redondel del Terminal Terrestre",
+        "Av. Esmeraldas",
+        "Av. Quevedo",
+        "Av. de los Anturios (Coop. Alejandro Montesdeoca)",
+        "Av. de los Anturios (Coop. Nuevo Amanecer)",
+        "Calle S/N (Centro de Rehabilitación)"
+      ],
+      "destinos_clave": ["Terminal Terrestre", "Unión Cívica Popular"]
+    },
+    {
+      "id": "06C1",
+      "nombre": "Los Girasoles - Hospital Gustavo Domínguez",
+      "servicio": "C1",
+      "linea_grupo": "06",
+      "operadora_tipo": "rotativa",
+      "operadora_semana_impar": "TRANSMETRO",
+      "operadora_semana_par": "EJECUTTRANS",
+      "horario_inicio": "05:41",
+      "horario_fin": "19:51",
+      "intervalo_min": 24,
+      "tiempo_ciclo_min": 84,
+      "velocidad_kmh": 15,
+      "unidades": 4,
+      "km_ida": 10.38,
+      "km_retorno": 10.66,
+      "demanda_pasajeros": 2457,
+      "terminal_principal": "Los Girasoles",
+      "terminal_secundario": "Hospital Gustavo Domínguez",
+      "paradas_ida": [
+        "Calle Principal de Girasoles (Urb. Girasoles)",
+        "Av. Quevedo",
+        "Calle Galápagos",
+        "Calle Oranzonas",
+        "Av. Quito",
+        "Av. Las Delicias (Hospital Gustavo Domínguez)"
+      ],
+      "paradas_retorno": [
+        "Av. Las Delicias (Hospital Gustavo Domínguez)",
+        "Av. Quito",
+        "Av. Río Toachi",
+        "Calle Cocaniguas",
+        "Calle Guayaquil",
+        "Av. Esmeraldas",
+        "Av. Quevedo",
+        "Calle Principal de Girasoles (Urb. Girasoles)"
+      ],
+      "destinos_clave": ["Hospital Gustavo Domínguez", "Los Girasoles"]
+    },
+    {
+      "id": "06C2",
+      "nombre": "Los Girasoles - Terminal Terrestre",
+      "servicio": "C2",
+      "linea_grupo": "06",
+      "operadora_tipo": "rotativa",
+      "operadora_semana_impar": "TRANSMETRO",
+      "operadora_semana_par": "EJECUTTRANS",
+      "horario_inicio": "06:05",
+      "horario_fin": "20:27",
+      "intervalo_min": 24,
+      "tiempo_ciclo_min": 84,
+      "velocidad_kmh": 15,
+      "unidades": 3,
+      "km_ida": 10.62,
+      "km_retorno": 10.57,
+      "demanda_pasajeros": null,
+      "terminal_principal": "Los Girasoles",
+      "terminal_secundario": "Terminal Terrestre",
+      "paradas_ida": [
+        "Calle Principal de Girasoles (Urb. Girasoles)",
+        "Av. Quevedo",
+        "Calle Galápagos",
+        "Calle Oranzonas",
+        "Av. Quito",
+        "Av. de los Tsáchilas",
+        "Redondel T. Terrestre",
+        "Av. Abraham Calazacón",
+        "Calles S/N",
+        "Humberto Fiallos",
+        "Alfredo Pérez Ch."
+      ],
+      "paradas_retorno": [
+        "Av. Abraham Calazacón",
+        "Redondel T. Terrestre",
+        "Av. de los Tsáchilas",
+        "Calle Guayaquil",
+        "Av. Esmeraldas",
+        "Av. Quevedo",
+        "Calle Principal de Girasoles (Urb. Girasoles)"
+      ],
+      "destinos_clave": ["Terminal Terrestre", "Los Girasoles"]
+    }
+  ],
+  "destinos_populares": [
+    {
+      "id": "terminal_terrestre",
+      "nombre": "Terminal Terrestre",
+      "icono": "terminal",
+      "lineas": ["06A", "06B", "06C2"]
+    },
+    {
+      "id": "hospital_gustavo",
+      "nombre": "Hospital Gustavo Domínguez",
+      "icono": "hospital",
+      "lineas": ["06C1"]
+    }
+  ]
+}
