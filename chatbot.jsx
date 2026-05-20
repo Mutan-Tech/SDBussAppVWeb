@@ -216,13 +216,14 @@
   }
 
   // -------- UI --------
-  function ChatbotWidget() {
-    const [open, setOpen] = React.useState(false);
+  function ChatbotWidget({ embedded = false, initiallyOpen = false, onClose = null } = {}) {
+    const [open, setOpen] = React.useState(embedded ? true : initiallyOpen);
     const [busy, setBusy] = React.useState(false);
     const [messages, setMessages] = React.useState([
       { from: 'bot', text: 'Hola. Pregúntame por una línea o destino (ej: "06A", "paradas ida 06A", "lineas a Terminal Terrestre").' }
     ]);
     const [input, setInput] = React.useState('');
+    const showPanel = embedded || open;
 
     const send = async () => {
       const text = input.trim();
@@ -244,62 +245,95 @@
     // auto-scroll
     const listRef = React.useRef(null);
     React.useEffect(() => {
-      if (!open) return;
+      if (!showPanel) return;
       const el = listRef.current;
       if (el) el.scrollTop = el.scrollHeight;
-    }, [open, messages.length]);
+    }, [showPanel, messages.length]);
 
     const accent = '#c89432';
+    const panelStyle = embedded ? {
+      width: '100%',
+      height: '100%',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      position: 'relative',
+      right: 'auto',
+      bottom: 'auto',
+      borderRadius: 0,
+      boxShadow: 'none',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
+    } : {
+      position: 'fixed',
+      right: 16,
+      bottom: 64,
+      width: 340,
+      maxWidth: 'calc(100vw - 32px)',
+      height: 460,
+      maxHeight: 'calc(100vh - 96px)',
+      zIndex: 9999,
+      background: '#fff',
+      borderRadius: 14,
+      overflow: 'hidden',
+      boxShadow: '0 18px 60px rgba(0,0,0,.25)',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
+    };
 
     return (
       <>
         {/* floating button */}
-        <button
-          onClick={() => setOpen(o => !o)}
-          style={{
-            position: 'fixed',
-            right: 16,
-            bottom: 16,
-            zIndex: 9999,
-            border: 'none',
-            cursor: 'pointer',
-            padding: '10px 12px',
-            borderRadius: 999,
-            background: accent,
-            color: '#1f1a12',
-            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-            fontWeight: 700,
-            boxShadow: '0 8px 24px rgba(0,0,0,.18)'
-          }}
-          title="Chat"
-        >
-          {open ? 'Cerrar' : 'Chat'}
-        </button>
-
-        {/* panel */}
-        {open && (
-          <div
+        {!embedded && (
+          <button
+            onClick={() => setOpen(o => !o)}
             style={{
               position: 'fixed',
               right: 16,
-              bottom: 64,
-              width: 340,
-              maxWidth: 'calc(100vw - 32px)',
-              height: 460,
-              maxHeight: 'calc(100vh - 96px)',
+              bottom: 16,
               zIndex: 9999,
-              background: '#fff',
-              borderRadius: 14,
-              overflow: 'hidden',
-              boxShadow: '0 18px 60px rgba(0,0,0,.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
+              border: 'none',
+              cursor: 'pointer',
+              padding: '10px 12px',
+              borderRadius: 999,
+              background: accent,
+              color: '#1f1a12',
+              fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+              fontWeight: 700,
+              boxShadow: '0 8px 24px rgba(0,0,0,.18)'
             }}
+            title="Chat"
           >
-            <div style={{ padding: '10px 12px', background: '#1f1a12', color: '#fff' }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>SDBussBot</div>
-              <div style={{ opacity: .8, fontSize: 12 }}>Responde usando el JSON de rutas</div>
+            {open ? 'Cerrar' : 'Chat'}
+          </button>
+        )}
+
+        {/* panel */}
+        {showPanel && (
+          <div
+            style={panelStyle}
+          >
+            <div style={{ padding: '10px 12px', background: '#1f1a12', color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>SDBussBot</div>
+                <div style={{ opacity: .8, fontSize: 12 }}>Responde usando el JSON de rutas</div>
+              </div>
+              <button
+                onClick={() => (embedded ? onClose?.() : setOpen(false))}
+                style={{
+                  border: 'none',
+                  borderRadius: 999,
+                  padding: '6px 10px',
+                  background: 'rgba(255,255,255,.12)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                Cerrar
+              </button>
             </div>
 
             <div ref={listRef} style={{ flex: 1, overflow: 'auto', padding: 12, background: '#faf8f4' }}>
@@ -359,6 +393,12 @@
   }
 
   // Expose (optional) helpers for debugging
-  window.SDBussBot = { loadData, answerFromJson };
-  window.ChatbotWidget = ChatbotWidget;
+  globalThis.SDBussBot = { loadData, answerFromJson };
+  globalThis.ChatbotWidget = ChatbotWidget;
+  globalThis.ChatbotModal = {
+    mount(container, props = {}) {
+      if (!container) return;
+      ReactDOM.createRoot(container).render(React.createElement(ChatbotWidget, { embedded: true, initiallyOpen: true, ...props }));
+    }
+  };
 })();
