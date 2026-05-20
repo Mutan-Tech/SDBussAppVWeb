@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transporte Santo Domingo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+    #app { display: flex; flex-direction: column; height: 640px; width: 440px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+    #header { background: #1565C0; padding: 14px 18px; display: flex; align-items: center; gap: 10px; }
+    #header .avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
+    #header .avatar i { font-size: 20px; color: white; }
+    #header .info h2 { font-size: 15px; font-weight: 600; color: white; margin: 0; }
+    #header .info p { font-size: 11px; color: rgba(255,255,255,0.8); margin: 0; }
+    #header .badge { margin-left: auto; background: rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
+    #messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #f0f2f5; }
+    .msg { display: flex; gap: 8px; align-items: flex-end; }
+    .msg.user { flex-direction: row-reverse; }
+    .bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.55; }
+    .msg.bot .bubble { background: white; border: 0.5px solid #e0e0e0; color: #111; border-bottom-left-radius: 4px; }
+    .msg.user .bubble { background: #1565C0; color: white; border-bottom-right-radius: 4px; }
+    .bot-icon { width: 28px; height: 28px; border-radius: 50%; background: #1565C0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bot-icon i { font-size: 14px; color: white; }
+    .typing { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: white; border-radius: 16px; border-bottom-left-radius: 4px; border: 0.5px solid #e0e0e0; }
+    .typing span { width: 6px; height: 6px; border-radius: 50%; background: #1565C0; animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    #chips { padding: 8px 12px 0; display: flex; gap: 6px; flex-wrap: wrap; background: #f0f2f5; }
+    .chip { font-size: 12px; padding: 5px 10px; border-radius: 20px; border: 1px solid #1565C0; color: #1565C0; background: #E3F2FD; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+    .chip:hover { background: #BBDEFB; }
+    #input-row { display: flex; gap: 8px; padding: 10px 12px; background: white; border-top: 0.5px solid #e0e0e0; }
+    #input-row input { flex: 1; border: 1px solid #ccc; border-radius: 20px; padding: 8px 14px; font-size: 13.5px; background: #f9f9f9; color: #111; outline: none; }
+    #input-row input:focus { border-color: #1565C0; }
+    #input-row button { width: 36px; height: 36px; border-radius: 50%; background: #1565C0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    #input-row button:hover { background: #0D47A1; }
+    #input-row button i { font-size: 16px; color: white; }
+    .line-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 11.5px; font-weight: 600; margin: 2px 2px 2px 0; }
+    .op-rt  { background:#E8F5E9; color:#1B5E20; }
+    .op-tm  { background:#E3F2FD; color:#0D47A1; }
+    .op-et  { background:#FFF3E0; color:#E65100; }
+    .op-rn  { background:#F3E5F5; color:#4A148C; }
+    .op-mix { background:#ECEFF1; color:#263238; }
+    .route-card { background:#f8f9fa; border-left: 3px solid #1565C0; border-radius: 6px; padding: 8px 10px; margin: 4px 0; font-size: 13px; }
+    .route-card .rname { font-weight: 600; color: #111; margin-bottom: 4px; }
+    .route-card .rinfo { color: #555; font-size: 12px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="avatar"><i class="ti ti-bus"></i></div>
+    <div class="info">
+      <h2>Transporte Santo Domingo</h2>
+      <p>EPMT-SD — Sistema integrado de rutas</p>
+    </div>
+    <div class="badge">36 líneas</div>
+  </div>
+
+  <div id="messages">
+    <div class="msg bot">
+      <div class="bot-icon"><i class="ti ti-bus"></i></div>
+      <div class="bubble">¡Hola! Soy el asistente de transporte de <strong>Santo Domingo</strong>. Tengo información de las <strong>36 líneas</strong> de las operadoras Río Toachi, Transmetro, Ejecuttrans y Rumiñahui.<br><br>Pregúntame por una <strong>avenida, barrio o destino</strong> y te digo qué bus tomar.</div>
+    </div>
+  </div>
+
+  <div id="chips">
+    <div class="chip" onclick="sendQ('¿Qué buses pasan por la Av. Quito?')">Av. Quito</div>
+    <div class="chip" onclick="sendQ('¿Cómo llego al Hospital Gustavo Domínguez?')">Hospital</div>
+    <div class="chip" onclick="sendQ('¿Qué bus va al Terminal Terrestre?')">Terminal T.</div>
+    <div class="chip" onclick="sendQ('¿Qué bus va a la Universidad Católica?')">U. Católica</div>
+    <div class="chip" onclick="sendQ('¿Cuáles son todas las líneas?')">Todas las líneas</div>
+    <div class="chip" onclick="sendQ('¿Qué buses pasan por la Av. Esmeraldas?')">Av. Esmeraldas</div>
+  </div>
+
+  <div id="input-row">
+    <input type="text" id="txt" placeholder="Ej: ¿Qué bus pasa por la Av. Chone?" onkeydown="if(event.key==='Enter')send()" />
+    <button onclick="send()"><i class="ti ti-send"></i></button>
+  </div>
+</div>
+
+<script>
+const ROUTES = {
+  /* ══════════════ COOPERATIVA RÍO TOACHI ══════════════ */
+  "L01-A": {
+    nombre: "Río Verde – EPACEN",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "06:00–20:00", intervalo: "10 min", unidades: 12,
+    demanda: "3,808",
+    calles: ["VÍA JULIO MORENO","CALLE S/N RIO VERDE","AV. DEL COOPERATIVISMO","CALLE S/N GALLERA","AV. RÍO TOACHI","CALLE GALAPAGOS","AV. QUEVEDO","REDONDEL INDIO COLORADO","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","VÍA ESMERALDAS","VÍA ESMERALDAS COLEGIO ECUADOR","AV. 29 DE MAYO","CALLE LOJA","CALLE GALÁPAGOS"]
+  },
+  "L02-A": {
+    nombre: "U. Católica – El Paraíso",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:40–23:30", intervalo: "12 min", unidades: 8,
+    demanda: "4,458",
+    calles: ["CALLE S/N URB. EL PARAÍSO","AV. LAS PALMAS","VÍA QUITO","AV. QUITO","29 DE MAYO","AV. QUEVEDO","AV. PUERTO ILA","AV. CHONE","AV. JACINTO CORTEZ JHAYYA","CALLE GALÁPAGOS","CALLE ORANZONAS","AV. DE LOS COLONOS","VÍA AL TOACHI","UNIVERSIDAD CATÓLICA"]
+  },
+  "L03": {
+    nombre: "Libre Ecuador – Coop. 9 de Diciembre",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:30–20:30", intervalo: "8 min", unidades: 11,
+    demanda: "7,314",
+    calles: ["CALLE E COOP. LIBRE ECUADOR","AV. PRINCIPAL COOP. LIBRE ECUADOR","AVENIDA C HERIBERTO MALDONADO","AV. DE LOS COLONOS","AV. BOMBOLI","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","CALLE RÍO YAMBOYA","AV. 29 DE MAYO","9 DE DICIEMBRE"]
+  },
+  "L04-A": {
+    nombre: "Villa Florida – Plan de Vivienda Sueño Bolívar",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:30–20:30", intervalo: "7 min", unidades: 13,
+    demanda: "9,575",
+    calles: ["AV. BOMBOLI VILLA FLORIDA","AV. BOMBOLI","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","VÍA ESMERALDAS","AV. 5 URB. BRISAS DEL COLORADO","CALLE 8 COOP. SUEÑO BOLÍVAR","CALLE W COOP. SUEÑO BOLÍVAR","CALLE 17 COOP. SUEÑO BOLÍVAR","AV. 29 DE MAYO","VILLA FLORIDA"]
+  },
+  "L04-B": {
+    nombre: "Camino al Futuro – El Edén",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:30–21:00", intervalo: "8 min", unidades: 12,
+    demanda: "5,779",
+    calles: ["CALLE S/N CAMINO AL FUTURO","AV. DE LOS COLONOS","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","AV. ABRAHAM CALAZACÓN","CALLE S/N REDONDEL DE LA ALBORADA","VÍA ESMERALDAS","CALLE S/N EL EDÉN","EL EDÉN","CAMINO AL FUTURO"]
+  },
+  "L05-A": {
+    nombre: "Luz del Día – Brisas 1",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:30–22:30", intervalo: "8 min", unidades: 11,
+    demanda: "7,231",
+    calles: ["CALLE S/N ASOCIACIÓN ATAHUALPA LUZ DEL DÍA","CALLE I JOHANA DE REYES","CALLE I VOLUNTAD DE DIOS","CALLE S/N URB. SAN JUAN Y SAN PABLO","AV. DE LOS COLONOS","AV. CHONE","AV. ESMERALDAS","CALLE 5 BRISAS SECTOR 1","CALLE 8 COOP. SUEÑO BOLÍVAR","CALLE W COOP. SUEÑO BOLÍVAR","CALLE 17 COOP. SUEÑO BOLÍVAR","LUZ DEL DÍA","BRISAS"]
+  },
+  "L05-B": {
+    nombre: "Virgen del Cisne / El Bosque – Brasilia del Toachi",
+    operadora: "Río Toachi", op_key: "rt",
+    horario: "05:30–20:30", intervalo: "10 min", unidades: 12,
+    demanda: "6,796",
+    calles: ["CALLE 2 BARRIO DARÍO CAYAT","CALLE 2 BARRIO VIRGEN DEL CISNE","CALLE I EL BOSQUE","AV. DE LOS COLONOS","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","VÍA QUITO","VÍA AL TOACHI","CALLE VINCES BRASILIA DEL TOACHI","VÍA LAS MERCEDES","CALLE S/N SAN ANTONIO DEL TOACHI","VIRGEN DEL CISNE","BRASILIA DEL TOACHI"]
+  },
+  "L19-RT": {
+    nombre: "Duragas – C.C. Shopping",
+    operadora: "Río Toachi / Ejecuttrans", op_key: "mix",
+    horario: "05:40–20:40", intervalo: "14 min", unidades: 3,
+    demanda: "1,397",
+    calles: ["AV. DEL COOPERATIVISMO DURAGAS","AV. DE LOS COLONOS","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","REDONDEL CIRCULO DE LOS CONTINENTES","C.C. SHOPPING","SHOPPING","CENTRO COMERCIAL","DURAGAS"]
+  },
+  "L24-B": {
+    nombre: "Anillo Vial (Río Toachi / Transmetro)",
+    operadora: "Río Toachi / Transmetro", op_key: "mix",
+    horario: "05:30–22:30", intervalo: "2 min", unidades: 9,
+    demanda: "6,776",
+    calles: ["AV. ABRAHAM CALAZACÓN","AV. TSAFIQUI","ANILLO VIAL"]
+  },
+
+  /* ══════════════ TRANSMETRO / EJECUTTRANS ══════════════ */
+  "L06-A": {
+    nombre: "Centro de Rehabilitación – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:30–20:15", intervalo: "12 min", unidades: 6,
+    demanda: "5,413",
+    calles: ["CALLE S/N CENTRO DE REHABILITACIÓN","AV. DE LOS ANTURIOS COOP. NUEVO AMANECER","AV. DE LOS ANTURIOS COOP. ALEJANDRO MONTESDEOCA","AV. QUEVEDO","AV. ESMERALDAS","REDONDEL TERMINAL TERRESTRE","CALLE 12 COM. UNIÓN CÍVICA POPULAR","CALLE S/N COM. VIVIENDA SAGRADAS ESCRITURAS","TERMINAL TERRESTRE","CENTRO DE REHABILITACIÓN"]
+  },
+  "L06-B": {
+    nombre: "Unión Cívica Popular – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:49–21:00", intervalo: "12 min", unidades: 6,
+    demanda: "5,299",
+    calles: ["CALLE S/N CENTRO DE REHABILITACIÓN","CALLE S/N COM. DE VIVIENDA SAGRADAS ESCRITURAS","CALLE 12 COM. UNIÓN CÍVICA POPULAR","AV. QUEVEDO","AV. ESMERALDAS","REDONDEL TERMINAL TERRESTRE","TERMINAL TERRESTRE","UNIÓN CÍVICA POPULAR"]
+  },
+  "L06-C1": {
+    nombre: "Los Girasoles – Hospital Gustavo Domínguez",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:41–19:51", intervalo: "24 min", unidades: 4,
+    demanda: "2,457",
+    calles: ["CALLE PRINCIPAL DE GIRASOLES","AV. QUEVEDO","CALLE GALÁPAGOS","CALLE ORANZONAS","AV. QUITO","AV. LAS DELICIAS HOSPITAL GUSTAVO DOMÍNGUEZ","AV. RIO TOACHI","CALLE COCANIGUAS","CALLE GUAYAQUIL","AV. ESMERALDAS","HOSPITAL GUSTAVO DOMÍNGUEZ","HOSPITAL","LOS GIRASOLES","GIRASOLES"]
+  },
+  "L06-C2": {
+    nombre: "Los Girasoles – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "06:05–20:27", intervalo: "24 min", unidades: 3,
+    demanda: "—",
+    calles: ["CALLE PRINCIPAL DE GIRASOLES","AV. QUEVEDO","CALLE GALÁPAGOS","CALLE ORANZONAS","AV. QUITO","AV. DE LOS TSÁCHILAS","REDONDEL TERMINAL TERRESTRE","AV. ABRAHAM CALAZACÓN","TERMINAL TERRESTRE","LOS GIRASOLES","GIRASOLES","CALLE GUAYAQUIL","CALLE COCANIGUAS"]
+  },
+  "L07": {
+    nombre: "La Cadena – San Carlos",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:30–20:00", intervalo: "12 min", unidades: 8,
+    demanda: "4,583",
+    calles: ["CALLE D ESCUELA CIUDAD VERDE","CALLE S/N CALLE PRINCIPAL ASO. LA CADENA","AV. DEL COOPERATIVISMO","AV. JACINTO CORTES","AV. DE LOS INCAS","PASAJE 2 URB. SKINER","CALLE REINA ISABEL","CALLE LA NIÑA COOP. LIBERACIÓN POPULAR","CALLE LATACUNGA","CALLE GUAYAQUIL","AV. ESMERALDAS","VÍA ESMERALDAS","AV. DE LOS COLONOS","VÍA AL BÚA","CALLE TIPUTINI","CALLE LOJA","CALLE GALÁPAGOS","CALLE IBARRA","CALLE ANTONIO NEUMAN","LA CADENA","SAN CARLOS"]
+  },
+  "L08-A": {
+    nombre: "Ramiro Gallo / Los Naranjos – Terminal Terrestre",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "05:45–21:30", intervalo: "10 min", unidades: 8,
+    demanda: "5,451",
+    calles: ["CALLE S/N RAMIRO GALLO","AV. DEL COOPERATIVISMO","CALLE E LOS NARANJOS","CALLE B LOS NARANJOS","CALLE A LOS NARANJOS","CALLE CATACOCHA PRINCIPAL COOP. UNIFICADOS","CALLE CAMINO RIO VERDE","AV. ABRAHAM CALAZACÓN","AV. RÍO TOACHI","AV. 29 DE MAYO","AV. ESMERALDAS","CALLE S/N REDONDEL DE LA VIRGEN DE LA ALBORADA","CALLE GALÁPAGOS","TERMINAL TERRESTRE","LOS NARANJOS","RAMIRO GALLO"]
+  },
+  "L08-B": {
+    nombre: "Los Unificados – Coop. Los Nogales",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "06:00–20:00", intervalo: "12 min", unidades: 8,
+    demanda: "3,460",
+    calles: ["CALLE ZUMBA LOS UNIFICADOS","CALLE PASAJE","CALLE JOSE MARTI","CALLE PIÑAS","CALLE 3","CALLE CARCHI","CALLE CATACOCHA","AV. RÍO TOACHI","CALLE COCANIGUAS","CALLE GUAYAQUIL","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","CALLE S/N REDONDEL DE LA VIRGEN DE LA ALBORADA","CALLE S/N COOP. LOS NOGALES","CALLE B COOP. UCON 2","CALLE 5 COOP. 2 DE MAYO","CALLE 24 DE SEPTIEMBRE","LOS UNIFICADOS","LOS NOGALES"]
+  },
+  "L09-A": {
+    nombre: "Coop. Mira Flores – Bombolí",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "05:00–22:00", intervalo: "13 min", unidades: 6,
+    demanda: "3,113",
+    calles: ["CALLE JUNIN MIRAFLORES","CALLE 17 DE JULIO","CALLE JIPIJAPA LA CARCHENCE","CALLE JOSÉ MARTÍ","CALLE JORGE LUIS BORGES","CALLE BENITO JUÁREZ","CALLE RUBÉN DARÍO","CALLE PABLO NERUDA","CALLE S/N LAS ISLAS","AV. TSAFIQUI","AV. RIO TOACHI","CALLE COCANIGUAS","CALLE GUAYAQUIL","CALLE PEDRO VICENTE MALDONADO","AV. SANTA ROSA","AV. MONSEÑOR SCHUMACER","CALLE VENEZUELA BOMBOLI","MIRAFLORES","BOMBOLI","BOMBOLÍ"]
+  },
+  "L09-B": {
+    nombre: "Los Naranjos – Terminal Terrestre",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "06:00–20:00", intervalo: "14 min", unidades: 5,
+    demanda: "—",
+    calles: ["CALLE E LOS NARANJOS","CALLE B LOS NARANJOS","CALLE A LOS NARANJOS","CALLE CATACOCHA PRINCIPAL COOP. UNIFICADOS","CALLE BAHÍA DE CARAQUEZ","CALLE BENITO JUÁREZ","CALLE RUBÉN DARÍO","CALLE PABLO NERUDA","CALLE S/N LAS ISLAS","AV. TSAFIQUI","AV. RIO TOACHI","CALLE COCANIGUAS","CALLE GUAYAQUIL","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","REDONDEL DE LA ALBORADA","TERMINAL TERRESTRE","LOS NARANJOS"]
+  },
+  "L10-A": {
+    nombre: "Cristo Vive – Unidad Educativa Kasama",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:27–20:42", intervalo: "16 min", unidades: 7,
+    demanda: "5,509",
+    calles: ["SUBCENTRO DE SALUD CRISTO VIVE","AV. LOS ANTURIOS CRISTO VIVE","AV. CAMINO A BELLAVISTA","AV. DEL COOPERATIVISMO","AV. JACINTO CORTEZ JHAYYA","CALLE JOSÉ JOAQUÍN OLMEDO","CALLE GASPAR DE VILLAROEL JESÚS DEL GRAN PODER","CALLE ABELARDO MONCAYO","CALLE ENRIQUE NOBOA","CALLE NUMA POMPILIO LIONA","CALLE DOLORES VEINTIMILLA LA CASTELLÁN","AV. DE LOS QUINCHES","AV. JACINTO CORTEZ","AV. QUEVEDO SECTOR LA PEPSI","CALLE GALÁPAGOS","CALLE ORANZONAS","AV. QUITO","CALLE S/N PARQUE DE LA JUVENTUD","AV. LOS ANTURIOS UNIDAD EDUCATIVA KASAMA","CALLE 2 UNIDAD EDUCATIVA KASAMA","CRISTO VIVE","KASAMA","U.E. KASAMA","UNIDAD EDUCATIVA KASAMA"]
+  },
+  "L10-B": {
+    nombre: "Los Arroyos – Unidad Educativa Kasama",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:45–20:46", intervalo: "16 min", unidades: 6,
+    demanda: "4,472",
+    calles: ["CALLE 2 UNIDAD EDUCATIVA KASAMA","AV. LOS ANTURIOS UNIDAD EDUCATIVA KASAMA","CALLE S/N PARQUE DE LA JUVENTUD","AV. QUITO","AV. 29 DE MAYO","AV. QUEVEDO SECTOR LA PEPSI","AV. JACINTO CORTEZ","AV. DE LOS QUINCHES","CALLE DOLORES VEINTIMILLA LA CASTELLÁN","CALLE JACINTO JIJÓN","CALLE S/N LA CASTELLANA","CALLE DE TLASCALAS","CALLE DE LOS ATABASCON","CALLE S/N LOS ARROYOS","CALLE S/N PAQUISA","AV. DEL COOPERATIVISMO","AV. JACINTO CORTEZ JAYYA","CALLE JOSÉ JOAQUÍN OLMEDO","CALLE GASPAR DE VILLAROEL","CALLE ABELARDO MONCAYO","CALLE ENRIQUE NOBOA","KASAMA","LOS ARROYOS"]
+  },
+  "L11-A1": {
+    nombre: "El Proletariado – Hospital Gustavo Domínguez",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:37–22:00", intervalo: "12 min", unidades: 4,
+    demanda: "6,105",
+    calles: ["AV. CORONEL EDMUNDO ANDRADE COOP. EL PROLETARIADO","AV. QUEVEDO","CALLE GALÁPAGOS","AV. DE LAS ORANZONAS","AV. QUITO","AV. LAS DELICIAS HOSPITAL GUSTAVO DOMÍNGUEZ","CALLE RÍO ZAMORA","CALLE RÍO YAMBOYA","AV. 29 DE MAYO","HOSPITAL GUSTAVO DOMÍNGUEZ","HOSPITAL","EL PROLETARIADO","HOSPITAL REGIONAL"]
+  },
+  "L11-A2": {
+    nombre: "El Proletariado – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "06:00–19:23", intervalo: "24 min", unidades: 3,
+    demanda: "—",
+    calles: ["AV. CORONEL EDMUNDO ANDRADE COOP. EL PROLETARIADO","AV. QUEVEDO","CALLE GALÁPAGOS","AV. DE LAS ORANZONAS","AV. QUITO","AV. DE LOS TSÁCHILAS","REDONDEL TERMINAL TERRESTRE","AV. ABRAHAM CALAZACÓN","AV. 29 DE MAYO","TERMINAL TERRESTRE","EL PROLETARIADO"]
+  },
+  "L11-B": {
+    nombre: "Coop. María del Rosario – Hospital Gustavo Domínguez",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "05:43–20:31", intervalo: "12 min", unidades: 7,
+    demanda: "3,306",
+    calles: ["CALLE G COOP. MARÍA DEL ROSARIO","AV. PRINCIPAL 2 COOP. 15 DE SEPTIEMBRE","AVENIDA 7 NUEVAS PROVINCIAS","AV. QUEVEDO","CALLE GALÁPAGOS","AV. DE LAS ORANZONAS","AV. QUITO","AV. LAS DELICIAS HOSPITAL REGIONAL","CALLE RÍO ZAMORA","CALLE RÍO YAMBOYA","AV. 29 DE MAYO","HOSPITAL GUSTAVO DOMÍNGUEZ","HOSPITAL","MARÍA DEL ROSARIO"]
+  },
+  "L11-C": {
+    nombre: "Camino al Poste \"Provincias Unidas\" – Hospital Gustavo Domínguez",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:47–19:20", intervalo: "36 min", unidades: 3,
+    demanda: "1,678",
+    calles: ["CALLE CAMINO AL POSTE AL POSTE 6 DE ENERO","AV. PRINCIPAL 2 COOP. 15 DE SEPTIEMBRE","AV. PRINCIPAL COOP. 15 DE SEPTIEMBRE","AV. L COOP. 15 DE SEPTIEMBRE","CALLE G COOP. 15 DE SEPTIEMBRE","AV. QUEVEDO","CALLE GALÁPAGOS","AV. DE LAS ORANZONAS","AV. QUITO","AV. LAS DELICIAS HOSPITAL REGIONAL","HOSPITAL GUSTAVO DOMÍNGUEZ","HOSPITAL","CAMINO AL POSTE"]
+  },
+  "L16-AB": {
+    nombre: "Chiguilpe / Maya Moncayo – Terminal Terrestre",
+    operadora: "Ejecuttrans / Transmetro", op_key: "mix",
+    horario: "05:44–20:37", intervalo: "8 min", unidades: 11,
+    demanda: "5,390",
+    calles: ["CALLE S/N BATALLÓN MONTUFAR MAYA MONCAYO","VÍA A QUITO CHIGUILPE","AV. QUITO","AV. 29 DE MAYO","REDONDEL INDIO COLORADO","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","CALLE ARTURO NOÉ","CALLE HUMBERTO FIALLOS","CALLE ALFREDO PÉREZ","AV. 3 DE JULIO","CALLE SAN MIGUEL","TERMINAL TERRESTRE","CHIGUILPE","MAYA MONCAYO"]
+  },
+  "L17-A": {
+    nombre: "Av. Italia \"UTE\" – Portal del Lago",
+    operadora: "Ejecuttrans", op_key: "et",
+    horario: "05:40–23:30", intervalo: "12 min", unidades: 8,
+    demanda: "4,373",
+    calles: ["CALLE S/N PORTAL DEL LAGO","VIA QUITO","CALLE 2 COOP. CHIGUILPE UNIDAD EDUCATIVA KASAMA","AV. DE LOS ANTURIOS","CALLE S/N PARQUE DE LA JUVENTUD","AV. QUITO","AV. 29 DE MAYO","AV. CHONE","AVENIDA ITALIA UTE","PORTAL DEL LAGO","UTE","UNIVERSIDAD TECNOLÓGICA EQUINOCCIAL"]
+  },
+  "L17-B": {
+    nombre: "Montoneros – Portal del Lago",
+    operadora: "Ejecuttrans", op_key: "et",
+    horario: "05:30–20:30", intervalo: "12 min", unidades: 7,
+    demanda: "3,797",
+    calles: ["CALLE S/N PORTAL DEL LAGO","VÍA QUITO","CALLE 2 COOP. CHIGUILPE UNIDAD EDUCATIVA KASAMA","AV. DE LOS ANTURIOS","CALLE S/N PARQUE DE LA JUVENTUD","AV. QUITO","AV. 29 DE MAYO","AV. CHONE","VÍA CHONE KM 5","PORTAL DEL LAGO","MONTONEROS"]
+  },
+  "L18-AB": {
+    nombre: "Quevedo Km 8 – Terminal Terrestre",
+    operadora: "Ejecuttrans / Transmetro", op_key: "mix",
+    horario: "05:20–22:03", intervalo: "12 min", unidades: 7,
+    demanda: "15,499",
+    calles: ["KM 8 VÍA QUEVEDO","KM7 VÍA A LA REFORMA LA COMUNA","AV. QUEVEDO","CALLE GALÁPAGOS","CALLE DE LAS ORANZONAS","AV. QUITO","AV. DE LOS TSÁCHILAS","REDONDEL TERMINAL TERRESTRE","AV. ABRAHAM CALAZACÓN","CALLE HUMBERTO FIALLOS","CALLE ALFREDO PEREZ","TERMINAL TERRESTRE","VÍA QUEVEDO","QUEVEDO KM 8"]
+  },
+  "L18-C1": {
+    nombre: "Quevedo Km 7 – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "06:24–19:32", intervalo: "36 min", unidades: 2,
+    demanda: "—",
+    calles: ["KM7 VÍA A LA REFORMA LA COMUNA","AV. QUEVEDO","CALLE GALÁPAGOS","CALLE DE LAS ORANZONAS","AV. QUITO","AV. DE LOS TSÁCHILAS","REDONDEL TERMINAL TERRESTRE","AV. ABRAHAM CALAZACÓN","TERMINAL TERRESTRE","QUEVEDO KM 7"]
+  },
+  "L18-C2": {
+    nombre: "Quevedo Km 7 – Hospital Gustavo Domínguez",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "06:12–20:22", intervalo: "36 min", unidades: 2,
+    demanda: "—",
+    calles: ["KM7 VÍA A LA REFORMA LA COMUNA","AV. QUEVEDO","CALLE GALÁPAGOS","AV. DE LAS ORANZONAS","AV. QUITO","AV. LAS DELICIAS HOSPITAL REGIONAL","CALLE RÍO ZAMORA","CALLE RÍO YAMBOYA","AV. 29 DE MAYO","HOSPITAL GUSTAVO DOMÍNGUEZ","HOSPITAL","QUEVEDO KM 7"]
+  },
+  "L19-TM": {
+    nombre: "Duragas – C.C. Shopping",
+    operadora: "Transmetro", op_key: "tm",
+    horario: "05:50–20:15", intervalo: "10 min", unidades: 3,
+    demanda: "1,662",
+    calles: ["AV. DEL COOPERATIVISMO DURAGAS","AV. DE LOS COLONOS","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","REDONDEL CIRCULO DE LOS CONTINENTES","C.C. SHOPPING","SHOPPING","CENTRO COMERCIAL","DURAGAS"]
+  },
+  "L20": {
+    nombre: "Ciudad Verde – Terminal Terrestre",
+    operadora: "Transmetro / Ejecuttrans", op_key: "mix",
+    horario: "05:40–20:55", intervalo: "12 min", unidades: 6,
+    demanda: "4,634",
+    calles: ["CALLE D ESCUELA CIUDAD VERDE","CALLE S/N CIUDAD VERDE","AV. JACINTO CORTEZ J.","CALLE JUAN DE DIOS MARTÍNEZ","AV. ABRAHAM CALAZACON","AV. DE LOS INCAS","CALLE S/N","AV. REINA ISABEL URB. SAN ANTONIO","CALLE LA NIÑA COOP. LIBERACIÓN POPULAR","CALLE MANUELITA SÁENZ","CALLE S/N REDONDEL DE LA VIRGEN","AV. QUEVEDO","AV. ESMERALDAS","REDONDEL TERMINAL TERRESTRE","TERMINAL TERRESTRE","CIUDAD VERDE"]
+  },
+  "L23-A": {
+    nombre: "Juan Eulogio – Centro",
+    operadora: "Ejecuttrans / Rumiñahui", op_key: "mix",
+    horario: "05:00–22:30", intervalo: "6 min", unidades: 3,
+    demanda: "2,226",
+    calles: ["CALLE C JUAN EULOGIO","AVENIDA 1 PRINCIPAL JUAN EULOGIO","CALLE J ASENTAMIENTO ELOY ALFARO","AV. PATRICIO ROMERO COOP. 2 DE MAYO 22 DE SEPTIEMBRE","AV. DE LOS COLONOS","AV. ESMERALDAS","AV. DE LOS TSÁCHILAS","CALLE GUAYAQUIL","JUAN EULOGIO","CENTRO"]
+  },
+  "L23-B": {
+    nombre: "Juan Eulogio – Santa Martha",
+    operadora: "Ejecuttrans / Rumiñahui", op_key: "mix",
+    horario: "05:00–20:30", intervalo: "6 min", unidades: 5,
+    demanda: "7,726",
+    calles: ["CALLE C JUAN EULOGIO","AVENIDA 1 PRINCIPAL JUAN EULOGIO","CALLE J ASENTAMIENTO ELOY ALFARO","AV. PATRICIO ROMERO","AV. DE LOS COLONOS","REDONDEL DE LA VIRGEN DE LOS ROSALES","AV. ABRAHAM CALAZACON","AV. ESMERALDAS","CALLE TIPUTINI","CALLE LOJA","CALLE GALÁPAGOS","CALLE LATACUNGA","CALLE LA NIÑA LIBERACIÓN POPULAR","CALLE REINA ISABEL","CALLE LA RABIDA","CALLE FEDERICO GONZALES SUAREZ","CALLE SANTA MARÍA","AV. SAO PAULO COOP. ASISTENCIA MUNICIPAL","CALLE BENJAMIN CARRIÓN COOP. 16 DE MARZO","CALLE JORGE C. ANDRADE COOP. 16 DE MARZO","CALLE JOSÉ JOAQUÍN OLMEDO COOP. SANTA MARTA SECTOR 5","JUAN EULOGIO","SANTA MARTHA","SANTA MARTA"]
+  },
+  "L24-A": {
+    nombre: "Anillo Vial (Ejecuttrans / Transmetro)",
+    operadora: "Ejecuttrans / Transmetro", op_key: "mix",
+    horario: "05:40–22:10", intervalo: "2 min", unidades: 20,
+    demanda: "16,533",
+    calles: ["AV. ABRAHAM CALAZACÓN","AV. TSAFIQUI","ANILLO VIAL"]
+  }
+};
+
+// ── Colores por operadora ────────────────────────────────────
+const OP_CLASS = { rt:"op-rt", tm:"op-tm", et:"op-et", rn:"op-rn", mix:"op-mix" };
+
+// ── Utilidades ───────────────────────────────────────────────
+function norm(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g,"");
+}
+
+function findByStreet(q) {
+  const qn = norm(q);
+  const hits = [];
+  for (const [id, r] of Object.entries(ROUTES)) {
+    const match = r.calles.some(c => norm(c).includes(qn) || qn.includes(norm(c).split(" ").filter(w=>w.length>3).slice(0,3).join(" ")));
+    if (match && !hits.find(h=>h.id===id)) hits.push({id, r});
+  }
+  return hits;
+}
+
+function routeCard(id, r) {
+  const cls = OP_CLASS[r.op_key] || "op-mix";
+  return `<div class="route-card">
+    <div class="rname"><span class="line-badge ${cls}">${id}</span> ${r.nombre}</div>
+    <div class="rinfo">
+      🏢 ${r.operadora}<br>
+      🕐 ${r.horario} &nbsp;|&nbsp; ⏱ cada ${r.intervalo}<br>
+      🚌 ${r.unidades} unidades &nbsp;|&nbsp; 👥 ${r.demanda} pasajeros
+    </div>
+  </div>`;
+}
+
+// ── Motor de respuestas ──────────────────────────────────────
+function buildResponse(msg) {
+  const q = norm(msg);
+
+  // Todas las líneas
+  if ((q.includes("todas") || q.includes("lista") || q.includes("cuales")) &&
+      (q.includes("linea") || q.includes("ruta") || q.includes("bus"))) {
+    let r = `Hay <strong>36 líneas</strong> en Santo Domingo:<br><br>`;
+    const ops = {rt:"🟢 Río Toachi", tm:"🔵 Transmetro", et:"🟠 Ejecuttrans", mix:"⚫ Compartidas"};
+    for (const [opk, opn] of Object.entries(ops)) {
+      const lines = Object.entries(ROUTES).filter(([,v])=>v.op_key===opk);
+      if (!lines.length) continue;
+      r += `<strong>${opn}</strong><br>`;
+      lines.forEach(([id,v])=>{ r += `<span class="line-badge ${OP_CLASS[opk]}">${id}</span> ${v.nombre}<br>`; });
+      r += "<br>";
+    }
+    return r;
+  }
+
+  // Horarios
+  if (q.includes("horario") || q.includes("atencion") || (q.includes("hora") && !q.includes("intervalo"))) {
+    let r = "🕐 <strong>Horarios por línea:</strong><br><br>";
+    for (const [id,v] of Object.entries(ROUTES)) {
+      const cls = OP_CLASS[v.op_key];
+      r += `<span class="line-badge ${cls}">${id}</span> ${v.nombre}: <strong>${v.horario}</strong><br>`;
+    }
+    return r;
+  }
+
+  // Hospital
+  if (q.includes("hospital") || q.includes("gustavo") || q.includes("dominguez") || q.includes("clinica")) {
+    const ids = ["L06-C1","L11-A1","L11-B","L11-C","L18-C2"];
+    let r = `Las líneas que llegan al <strong>Hospital Gustavo Domínguez</strong>:<br><br>`;
+    ids.forEach(id=>{ if(ROUTES[id]) r += routeCard(id, ROUTES[id]); });
+    return r;
+  }
+
+  // Terminal Terrestre
+  if (q.includes("terminal") || q.includes("terminal terrestre")) {
+    const ids = ["L06-A","L06-B","L06-C2","L08-A","L09-B","L11-A2","L16-AB","L18-AB","L18-C1","L20"];
+    let r = `Líneas que van al <strong>Terminal Terrestre</strong>:<br><br>`;
+    ids.forEach(id=>{ if(ROUTES[id]) r += routeCard(id, ROUTES[id]); });
+    return r;
+  }
+
+  // Destinos clave
+  const destinos = [
+    {kw:["shopping","c.c.","centro comercial"], ids:["L19-RT","L19-TM"]},
+    {kw:["universidad|u. catolica|u.catolica|puerto ila"], ids:["L02-A"]},
+    {kw:["rio verde"], ids:["L01-A"]},
+    {kw:["epacen"], ids:["L01-A"]},
+    {kw:["libre ecuador"], ids:["L03"]},
+    {kw:["9 de diciembre","yamboya"], ids:["L03"]},
+    {kw:["villa florida"], ids:["L04-A"]},
+    {kw:["sueno bolivar","sueño bolivar","plan de vivienda"], ids:["L04-A","L05-A"]},
+    {kw:["camino al futuro"], ids:["L04-B"]},
+    {kw:["eden","el eden"], ids:["L04-B"]},
+    {kw:["luz del dia","luz del día"], ids:["L05-A"]},
+    {kw:["brisas"], ids:["L05-A"]},
+    {kw:["virgen del cisne"], ids:["L05-B"]},
+    {kw:["brasilia del toachi","brasilia"], ids:["L05-B"]},
+    {kw:["anillo vial"], ids:["L24-A","L24-B"]},
+    {kw:["portal del lago"], ids:["L17-A","L17-B"]},
+    {kw:["chiguilpe"], ids:["L16-AB","L17-A","L17-B"]},
+    {kw:["duragas"], ids:["L19-RT","L19-TM"]},
+    {kw:["miraflores","mira flores"], ids:["L09-A"]},
+    {kw:["bomboli","bombolí"], ids:["L09-A"]},
+    {kw:["los naranjos","naranjos"], ids:["L08-A","L09-B"]},
+    {kw:["ciudad verde"], ids:["L07","L20"]},
+    {kw:["la cadena"], ids:["L07"]},
+    {kw:["san carlos"], ids:["L07"]},
+    {kw:["juan eulogio"], ids:["L23-A","L23-B"]},
+    {kw:["santa martha","santa marta"], ids:["L23-B"]},
+    {kw:["quevedo km 8","km 8"], ids:["L18-AB"]},
+    {kw:["quevedo km 7","km 7"], ids:["L18-C1","L18-C2"]},
+    {kw:["girasoles","los girasoles"], ids:["L06-C1","L06-C2"]},
+    {kw:["kasama","unidad educativa kasama"], ids:["L10-A","L10-B"]},
+    {kw:["cristo vive"], ids:["L10-A"]},
+    {kw:["los arroyos"], ids:["L10-B"]},
+    {kw:["proletariado","el proletariado"], ids:["L11-A1","L11-A2"]},
+    {kw:["maria del rosario"], ids:["L11-B"]},
+    {kw:["rehabilitacion","centro de rehabilitacion"], ids:["L06-A"]},
+    {kw:["union civica","unión cívica"], ids:["L06-B"]},
+    {kw:["montoneros"], ids:["L17-B"]},
+    {kw:["camino al poste"], ids:["L11-C"]},
+    {kw:["paraiso","el paraiso"], ids:["L02-A"]},
+  ];
+
+  for (const d of destinos) {
+    if (d.kw.some(k=>q.includes(norm(k)))) {
+      let r = `Líneas para ese destino:<br><br>`;
+      d.ids.forEach(id=>{ if(ROUTES[id]) r += routeCard(id, ROUTES[id]); });
+      return r;
+    }
+  }
+
+  // Búsqueda por calle/avenida
+  const streetHints = ["av","avenida","calle","via","km ","pasaje"];
+  if (streetHints.some(h=>q.includes(h))) {
+    const terms = msg.replace(/[¿?!.,]/g,"").split(" ");
+    let best = "";
+    for (let len=5; len>=2; len--) {
+      for (let i=0; i<=terms.length-len; i++) {
+        const c = norm(terms.slice(i,i+len).join(" "));
+        const sw = ["que","bus","pasa","por","la","el","los","las","una","como","llego","al","del","buses","linea","ruta"];
+        if (c.length>4 && !sw.includes(c)) { best=c; break; }
+      }
+      if (best) break;
+    }
+    if (!best) best = q;
+    const results = findByStreet(best);
+    if (results.length > 0) {
+      let r = `Por esa zona pasan <strong>${results.length} línea(s)</strong>:<br><br>`;
+      results.forEach(({id,r:rt})=>{ r += routeCard(id,rt); });
+      return r;
+    }
+  }
+
+  // Búsqueda genérica amplia
+  const results = findByStreet(q);
+  if (results.length > 0) {
+    let r = `Encontré <strong>${results.length} línea(s)</strong> relacionadas:<br><br>`;
+    results.forEach(({id,r:rt})=>{ r += routeCard(id,rt); });
+    return r;
+  }
+
+  return `No encontré información para tu consulta. Puedes preguntarme por:<br><br>
+    • Una <strong>avenida o calle</strong> — ej: "Av. Quito", "Av. Chone"<br>
+    • Un <strong>destino o barrio</strong> — ej: "Hospital", "Terminal Terrestre", "Villa Florida"<br>
+    • Un <strong>lugar específico</strong> — ej: "UTE", "Kasama", "C.C. Shopping"<br>
+    • <strong>Todos los horarios</strong> o <strong>todas las líneas</strong><br><br>
+    Tengo información de <strong>36 líneas</strong> de Río Toachi, Transmetro, Ejecuttrans y Rumiñahui.`;
+}
+
+// ── UI ───────────────────────────────────────────────────────
+function addMsg(html, type) {
+  const msgs = document.getElementById("messages");
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + type;
+  wrap.innerHTML = type === "bot"
+    ? `<div class="bot-icon"><i class="ti ti-bus"></i></div><div class="bubble">${html}</div>`
+    : `<div class="bubble">${html}</div>`;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById("messages");
+  const el = document.createElement("div");
+  el.className = "msg bot"; el.id = "typ";
+  el.innerHTML = `<div class="bot-icon"><i class="ti ti-bus"></i></div><div class="typing"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+function sendQ(q) { document.getElementById("txt").value = q; send(); }
+
+function send() {
+  const inp = document.getElementById("txt");
+  const val = inp.value.trim();
+  if (!val) return;
+  inp.value = "";
+  addMsg(val, "user");
+  const t = showTyping();
+  setTimeout(() => { t.remove(); addMsg(buildResponse(val), "bot"); }, 700);
+}
+</script>
+</body>
+</html>

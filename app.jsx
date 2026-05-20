@@ -17,7 +17,7 @@ function App() {
   const t = I18N[tweaks.lang] || I18N.es;
 
   return (
-    <>
+    <><ChatbotWidget />
       <DesignCanvas>
         {APPROACHES.map(ap => (
           <DCSection key={ap.id} id={ap.id} title={ap.title} subtitle={ap.subtitle}>
@@ -56,6 +56,7 @@ function App() {
         </TweakSection>
       </TweaksPanel>
     </>
+    
   );
 }
 

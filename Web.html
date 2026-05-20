@@ -301,6 +301,44 @@
       .detail-grid { grid-template-columns: 1fr; }
     }
   </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+    <style>
+      /* Chatbot modal scoped styles (prefix selectors with #chat-app) */
+      #chat-app * { box-sizing: border-box; }
+      #chat-app { display: flex; flex-direction: column; height: 520px; width: 360px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 32px rgba(0,0,0,0.18); }
+      #chat-app #chat-header { background: #1D9E75; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+      #chat-app #chat-header .avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; }
+      #chat-app #chat-header .avatar i { font-size: 16px; color: white; }
+      #chat-app #chat-header .info h2 { font-size: 14px; font-weight: 600; color: white; margin: 0; }
+      #chat-app #chat-header .info p { font-size: 12px; color: rgba(255,255,255,0.85); margin: 0; }
+      #chat-app #chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #f0f2f5; }
+      #chat-app .msg { display: flex; gap: 8px; align-items: flex-end; }
+      #chat-app .msg.user { flex-direction: row-reverse; }
+      #chat-app .bubble { max-width: 78%; padding: 10px 12px; border-radius: 14px; font-size: 14px; line-height: 1.4; }
+      #chat-app .msg.bot .bubble { background: white; border: 0.5px solid #e0e0e0; color: #111; border-bottom-left-radius: 4px; }
+      #chat-app .msg.user .bubble { background: #1D9E75; color: white; border-bottom-right-radius: 4px; }
+      #chat-app .bot-icon { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      #chat-app .bot-icon i { font-size: 13px; color: white; }
+      #chat-app .typing { display: flex; align-items: center; gap: 4px; padding: 10px 12px; background: white; border-radius: 14px; border-bottom-left-radius: 4px; border: 0.5px solid #e0e0e0; }
+      #chat-app .typing span { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; animation: chat-bounce 1.2s infinite; }
+      #chat-app .typing span:nth-child(2) { animation-delay: 0.2s; }
+      #chat-app .typing span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes chat-bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+      #chat-app #chat-chips { padding: 10px 12px 0; display: flex; gap: 6px; flex-wrap: wrap; background: #f0f2f5; }
+      #chat-app .chip { font-size: 12px; padding: 6px 10px; border-radius: 18px; border: 0.5px solid #1D9E75; color: #0F6E56; background: #E1F5EE; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+      #chat-app .chip:hover { background: #9FE1CB; }
+      #chat-app #chat-input-row { display: flex; gap: 8px; padding: 10px 12px; background: white; border-top: 0.5px solid #e0e0e0; }
+      #chat-app #chat-input-row input { flex: 1; border: 0.5px solid #ccc; border-radius: 20px; padding: 8px 12px; font-size: 14px; background: #f9f9f9; color: #111; outline: none; }
+      #chat-app #chat-input-row input:focus { border-color: #1D9E75; }
+      #chat-app #chat-input-row button { width: 36px; height: 36px; border-radius: 50%; background: #1D9E75; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      #chat-app #chat-input-row button i { font-size: 16px; color: white; }
+
+      /* Modal + toggle button */
+      #chat-modal { position: fixed; right: 18px; bottom: 86px; z-index: 120; display: none; }
+      #chat-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 110; display: none; }
+      .chat-toggle-btn { position: fixed; right: 18px; bottom: 18px; z-index: 130; width:56px;height:56px;border-radius:50%;background:#1D9E75;border:none;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.18);cursor:pointer; }
+      .chat-close { background: transparent; border: 0; color: rgba(255,255,255,0.9); font-weight:700; font-size:14px; }
+    </style>
 </head>
 <body data-theme="light">
   <header class="header">
@@ -511,7 +549,7 @@
       <a href="#">Contacto</a>
     </div>
   </footer>
-
+ <script type="text/babel" src="chatbot.jsx"></script>
   <script>
     // ─── Data (subset of PDF) ──────────────────────────────────
     const LINES = [
@@ -615,5 +653,84 @@
 
     renderLines();
   </script>
+  <!-- Chatbot modal and toggle -->
+  <div id="chat-overlay"></div>
+  <div id="chat-modal" aria-hidden="true">
+    <div id="chat-app" role="dialog" aria-label="Asistente de Transporte">
+      <div id="chat-header">
+        <div class="avatar"><i class="ti ti-bus"></i></div>
+        <div class="info">
+          <h2>Asistente de Transporte</h2>
+          <p>Cooperativa Río Toachi — Santo Domingo</p>
+        </div>
+        <div style="margin-left:auto"><button class="chat-close" id="chat-close">Cerrar</button></div>
+      </div>
+
+      <div id="chat-messages"></div>
+
+      <div id="chat-chips">
+        <div class="chip" data-q="¿Qué buses pasan por la Av. Quito?">Av. Quito</div>
+        <div class="chip" data-q="¿Cómo llego al C.C. Shopping?">C.C. Shopping</div>
+        <div class="chip" data-q="¿Qué bus va a la Universidad Católica?">U. Católica</div>
+        <div class="chip" data-q="¿Qué línea pasa por la Av. Esmeraldas?">Av. Esmeraldas</div>
+        <div class="chip" data-q="¿Cuáles son los horarios de atención?">Horarios</div>
+      </div>
+
+      <div id="chat-input-row">
+        <input type="text" id="chat-txt" placeholder="Ej: ¿Qué bus pasa por la Av. Chone?" />
+        <button id="chat-send"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- <button class="chat-toggle-btn" id="chat-toggle" title="Abrir asistente"><i class="ti ti-message-2"></i></button> -->
+
+  <script>
+  (function(){
+    // Copied ROUTES and helper functions (scoped for modal)
+    const ROUTES = {
+      "L01-A": { nombre: "Línea 01-A: Río Verde – EPACEN", horario: "06:00 a 20:00", intervalo: "10 minutos", unidades: 12, demanda: "3,808 pasajeros aprox.", calles_ida: ["VÍA JULIO MORENO","CALLE S/N (RIO VERDE)","AV. DEL COOPERATIVISMO","CALLE S/N (GALLERA)","AV. RÍO TOACHI","CALLE GALAPAGOS","AV. QUEVEDO","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","VÍA ESMERALDAS","VÍA ESMERALDAS (COLEGIO ECUADOR)"], calles_retorno: ["VÍA ESMERALDAS (COLEGIO ECUADOR)","VÍA ESMERALDAS","AV. DE LOS TSÁCHILAS","AV. 29 DE MAYO","CALLE LOJA","CALLE GALÁPAGOS","AV. RIO TOACHI","AV. DEL COOPERATIVISMO","CALLE S/N (GALLERA)","AV. DEL COOPERATIVISMO","CALLE S/N (RIO VERDE)","VÍA JULIO MORENO"] },
+      "L02-A": { nombre: "Línea 02-A: U. Católica – El Paraíso", horario: "05:40 a 23:30", intervalo: "12 minutos", unidades: 8, demanda: "4,458 pasajeros aprox.", calles_ida: ["CALLE S/N (URB. EL PARAÍSO)","AV. LAS PALMAS","VÍA QUITO","AV. QUITO","29 DE MAYO","AV. QUEVEDO","AV. PUERTO ILA"], calles_retorno: ["AV. CHONE","AV. JACINTO CORTEZ JHAYYA","AV. QUEVEDO","CALLE GALÁPAGOS","CALLE ORANZONAS","AV. QUITO","VÍA QUITO","AV. DE LOS COLONOS","VÍA AL TOACHI","AV. LAS PALMAS","CALLE S/N (URB. EL PARAÍSO)"] },
+      "L03": { nombre: "Línea 03: Libre Ecuador – Coop. 9 de Diciembre", horario: "05:30 a 20:30", intervalo: "8 minutos", unidades: 11, demanda: "7,314 pasajeros aprox.", calles_ida: ["CALLE E (COOP. LIBRE ECUADOR)","AV. PRINCIPAL (COOP. LIBRE ECUADOR)","AVENIDA C (HERIBERTO MALDONADO)","AV. DE LOS COLONOS","AV. BOMBOLI","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","CALLE RÍO YAMBOYA (COOP. 9 DE DICIEMBRE)"], calles_retorno: ["CALLE RÍO YAMBOYA (COOP. 9 DE DICIEMBRE)","AV. QUITO","AV. 29 DE MAYO","AV. CHONE","AV. BOMBOLI","AV. DE LOS COLONOS","AVENIDA C (HERIBERTO MALDONADO)","AV. PRINCIPAL (COOP. LIBRE ECUADOR)","CALLE E (COOP. LIBRE ECUADOR)"] },
+      "L04-A": { nombre: "Línea 04-A: Villa Florida – Plan de Vivienda Sueño Bolívar", horario: "05:30 a 20:30", intervalo: "7 minutos", unidades: 13, demanda: "9,575 pasajeros aprox.", calles_ida: ["AV. BOMBOLI (VILLA FLORIDA-COOP. MODELO)","AV. BOMBOLI","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","VÍA ESMERALDAS","AV. 5 (URB. BRISAS DEL COLORADO)","CALLE 8 (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE W (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE 17 (COOP. SUEÑO BOLÍVAR)"], calles_retorno: ["CALLE 17 (COOP. SUEÑO BOLÍVAR)","CALLE W (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE 8 (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","AV. 5 (URB. BRISAS DEL COLORADO)","VÍA ESMERALDAS","AV. DE LOS TSÁCHILAS","AV. 29 DE MAYO","AV. CHONE","AV. BOMBOLI","AV. BOMBOLI (VILLA FLORIDA-COOP. MODELO)"] },
+      "L04-B": { nombre: "Línea 04-B: Camino al Futuro – El Edén", horario: "05:30 a 21:00", intervalo: "8 minutos", unidades: 12, demanda: "5,779 pasajeros aprox.", calles_ida: ["CALLE S/N (CAMINO AL FUTURO)","AV. DE LOS COLONOS","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","AV. DE LOS TSÁCHILAS","AV. ABRAHAM CALAZACÓN","CALLE S/N (REDONDEL DE LA ALBORADA)","VÍA ESMERALDAS","CALLE S/N BARRIO SUB DIVISIÓN PÉREZ","CALLE S/N (EL EDÉN)"], calles_retorno: ["CALLE S/N (EL EDÉN)","AV. DE LOS COLONOS","VÍA ESMERALDAS","AV. ABRAHAM CALAZACÓN","CALLE S/N (REDONDEL DE LA ALBORADA)","AV. DE LOS TSÁCHILAS","AV. 29 DE MAYO","AV. CHONE","AV. DE LOS COLONOS","CALLE S/N (CAMINO AL FUTURO)"] },
+      "L05-A": { nombre: "Línea 05-A: Luz del Día – Brisas 1", horario: "05:30 a 22:30", intervalo: "8 minutos", unidades: 11, demanda: "7,231 pasajeros aprox.", calles_ida: ["CALLE S/N (ASOCIACIÓN ATAHUALPA – LUZ DEL DÍA I)","CALLE I (JOHANA DE REYES)","CALLE I (VOLUNTAD DE DIOS)","CALLE S/N (URB. SAN JUAN Y SAN PABLO)","AV. DE LOS COLONOS","AV. CHONE","AV. ESMERALDAS","CALLE 5 (BRISAS SECTOR 1)","CALLE 8 (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE W (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE 17 (COOP. SUEÑO BOLÍVAR)"], calles_retorno: ["CALLE 17 (COOP. SUEÑO BOLÍVAR)","CALLE W (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE 8 (COOP. PLAN DE VIVIENDA SUEÑO BOLÍVAR)","CALLE 5 (BRISAS SECTOR 1)","AV. ESMERALDAS","AV. CHONE","AV. DE LOS COLONOS","CALLE S/N (VOLUNTAD DE DIOS)","CALLE I (JOHANA DE REYES)","CALLE S/N (ASOCIACIÓN ATAHUALPA – LUZ DEL DÍA I)"] },
+      "L05-B": { nombre: "Línea 05-B: Virgen del Cisne / El Bosque – Brasilia del Toachi", horario: "05:30 a 20:30", intervalo: "10 minutos", unidades: 12, demanda: "6,796 pasajeros aprox.", calles_ida: ["CALLE 2 (BARRIO DARÍO CAYAT)","CALLE 2 (BARRIO VIRGEN DEL CISNE)","CALLE I (EL BOSQUE - VOLUNTAD DE DÍOS)","AV. DE LOS COLONOS","AV. CHONE","AV. 3 DE JULIO","CALLE SAN MIGUEL","AV. QUITO","VÍA QUITO","AV. DE LOS COLONOS","VÍA AL TOACHI","CALLE S/N (EL CAMAL)","VÍA AL TOACHI","CALLE VINCES (BRASILIA DEL TOACHI)","VÍA LAS MERCEDES","CALLE S/N (SAN ANTONIO DEL TOACHI)"], calles_retorno: ["CALLE S/N (SAN ANTONIO DEL TOACHI)","VÍA LAS MERCEDES","CALLE VINCES (BRASILIA DEL TOACHI)","VÍA AL TOACHI","CALLE S/N (EL CAMAL)","VÍA AL TOACHI","AV. DE LOS COLONOS","VÍA QUITO","AV. QUITO","AV. 29 DE MAYO","AV. CHONE","AV. DE LOS COLONOS","CALLE I (EL BOSQUE - VOLUNTAD DE DÍOS)","CALLE 2 (BARRIO VIRGEN DEL CISNE)","CALLE 2 (BARRIO DARÍO CAYAT)"] },
+      "L19": { nombre: "Línea 19: Duragas – C.C. Shopping", horario: "05:40 a 20:40", intervalo: "14 minutos", unidades: 3, demanda: "1,397 pasajeros aprox.", calles_ida: ["AV. DEL COOPERATIVISMO (ENTRADA VÍA AVENTURA - DURAGAS)","AV. DE LOS COLONOS","AV. ESMERALDAS","AV. ABRAHAM CALAZACÓN","REDONDEL DEL CIRCULO DE LOS CONTINENTES"], calles_retorno: ["REDONDEL DEL CIRCULO DE LOS CONTINENTES","AV. ABRAHAM CALAZACÓN","AV. ESMERALDAS","AV. DE LOS COLONOS","AV. DEL COOPERATIVISMO (ENTRADA VÍA AVENTURA - DURAGAS)"] },
+      "L24-B": { nombre: "Línea 24-B: Anillo Vial", horario: "05:30 a 22:30", intervalo: "2 minutos", unidades: 9, demanda: "6,776 pasajeros aprox.", calles_ida: ["AV. ABRAHAM CALAZACÓN","AV. TSAFIQUI"], calles_retorno: ["AV. TSAFIQUI","AV. ABRAHAM CALAZACÓN"] }
+    };
+
+    function normalize(str){ return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g,""); }
+    function findRoutesByStreet(query){ const q=normalize(query); const found=[]; for(const [id,r] of Object.entries(ROUTES)){ const allStreets=[...r.calles_ida,...r.calles_retorno]; const match=allStreets.find(s=>normalize(s).includes(q)||q.includes(normalize(s).split(" ").filter(w=>w.length>3).join(" ").substring(0,15))); if(match) found.push({id,route:r,street:match}); } return found; }
+    function buildResponse(userMsg){ const q=normalize(userMsg); if(q.includes("horario")||q.includes("hora")||q.includes("atencion")||q.includes("cuando")){ let resp="🕐 <strong>Horarios de atención por línea:</strong><br><br>"; for(const [id,r] of Object.entries(ROUTES)){ resp+=`<span class='line-badge'>${id}</span> ${r.nombre.split(":")[1].trim()}: <strong>${r.horario}</strong><br>`; } return resp; }
+      if(q.includes("todas")&&(q.includes("linea")||q.includes("ruta")||q.includes("bus"))){ let resp="Aquí están todas las líneas de la <strong>Cooperativa Río Toachi</strong>:<br><br>"; for(const [id,r] of Object.entries(ROUTES)){ resp+=`<span class='line-badge'>${id}</span> ${r.nombre.split(":")[1].trim()} — Horario: ${r.horario}<br>`; } return resp; }
+      const keywords={"shopping|c.c.|centro comercial":"L19","duragas":"L19","universidad|u. catolica|u.catolica":"L02-A","paraiso|el paraiso":"L02-A","rio verde":"L01-A","epacen":"L01-A","libre ecuador|9 de diciembre":"L03","villa florida":"L04-A","sueno bolivar|sueño bolivar":"L04-A","camino al futuro":"L04-B","eden|el eden":"L04-B","luz del dia|luz del día":"L05-A","brisas":"L05-A","virgen del cisne":"L05-B","brasilia del toachi|brasilia":"L05-B","anillo vial":"L24-B"};
+      for(const [kw,lid] of Object.entries(keywords)){ if(kw.split("|").some(p=>q.includes(p))){ const r=ROUTES[lid]; return `Para ir hacia <strong>${r.nombre.split("–")[1]?.trim()||r.nombre}</strong>:<br><br> <span class='line-badge'>${lid}</span> <strong>${r.nombre}</strong><br> 🕐 Horario: ${r.horario}<br> ⏱ Intervalo: cada ${r.intervalo}<br> 🚌 Unidades: ${r.unidades}<br> 👥 Demanda: ${r.demanda}`; } }
+      const streetKeywords=["av.","avenida","calle","via","cooperativismo","esmeraldas","quito","chone","colonos","tsachilas","bomboli","julio","quevedo","29 de mayo","3 de julio","san miguel","toachi","tsafiqui","calazacon","abraham","puerto ila","jacinto"]; const hasStreet=streetKeywords.some(k=>q.includes(k))||q.includes("av")||q.includes("calle"); if(hasStreet){ const terms=userMsg.replace(/[¿?!.,]/g,"").split(" "); let bestQuery=""; for(let len=4;len>=2;len--){ for(let i=0;i<=terms.length-len;i++){ const candidate=terms.slice(i,i+len).join(" "); const cn=normalize(candidate); const stopwords=["que","bus","pasa","por","la","el","los","las","una","como","llego","al","del"]; if(cn.length>4&&!stopwords.includes(cn)){ bestQuery=cn; break; } } if(bestQuery) break; } if(!bestQuery) bestQuery=q; const results=findRoutesByStreet(bestQuery); if(results.length>0){ let resp=`Por esa zona pasan <strong>${results.length} línea(s)</strong>:<br><br>`; for(const {id,route} of results){ resp+=`<span class='line-badge'>${id}</span> <strong>${route.nombre}</strong><br>`; resp+=`🕐 ${route.horario} &nbsp;|&nbsp; ⏱ cada ${route.intervalo} &nbsp;|&nbsp; 🚌 ${route.unidades} unidades<br><br>`; } return resp; } }
+      return `No encontré información exacta. Puedes preguntarme por:<br><br> • Una <strong>avenida o calle</strong> (ej: "Av. Quito", "Calle San Miguel")<br> • Un <strong>destino</strong> (ej: "Universidad Católica", "C.C. Shopping")<br> • Un <strong>barrio</strong> (ej: "Villa Florida", "El Paraíso")<br> • Los <strong>horarios</strong> de las líneas<br><br> Tengo información de 9 líneas de la Cooperativa Río Toachi.`; }
+
+    function addMsg(text,type){ const msgs=document.getElementById('chat-messages'); const wrap=document.createElement('div'); wrap.className='msg '+type; if(type==='bot'){ wrap.innerHTML=`<div class="bot-icon"><i class="ti ti-bus"></i></div><div class="bubble">${text}</div>`; } else { wrap.innerHTML=`<div class="bubble">${text}</div>`; } msgs.appendChild(wrap); msgs.scrollTop=msgs.scrollHeight; }
+    function showTyping(){ const msgs=document.getElementById('chat-messages'); const el=document.createElement('div'); el.className='msg bot'; el.id='chat-typing-indicator'; el.innerHTML=`<div class="bot-icon"><i class="ti ti-bus"></i></div><div class="typing"><span></span><span></span><span></span></div>`; msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight; return el; }
+    function sendQ(q){ document.getElementById('chat-txt').value=q; send(); }
+    function send(){ const input=document.getElementById('chat-txt'); const val=input.value.trim(); if(!val) return; input.value=''; addMsg(val,'user'); const typing=showTyping(); setTimeout(()=>{ typing.remove(); addMsg(buildResponse(val),'bot'); },800); }
+
+    // UI controls
+    const overlay=document.getElementById('chat-overlay'), modal=document.getElementById('chat-modal'), toggle=document.getElementById('chat-toggle'), closeBtn=document.getElementById('chat-close');
+    function openChat(){ overlay.style.display='block'; modal.style.display='block'; modal.setAttribute('aria-hidden','false'); document.getElementById('chat-txt').focus(); }
+    function closeChat(){ overlay.style.display='none'; modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+    toggle.addEventListener('click', openChat); closeBtn.addEventListener('click', closeChat); overlay.addEventListener('click', closeChat);
+    document.getElementById('chat-send').addEventListener('click', send);
+    document.getElementById('chat-txt').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+    document.getElementById('chat-chips').addEventListener('click', e=>{ const btn=e.target.closest('.chip'); if(!btn) return; sendQ(btn.dataset.q || btn.textContent); });
+
+    // initial message
+    addMsg('¡Hola! Soy el asistente de rutas de la <strong>Cooperativa Río Toachi</strong>. Puedo ayudarte a encontrar qué bus pasa por tu ubicación o cómo llegar a tu destino. ¿En qué te puedo ayudar?','bot');
+
+    // expose for debugging
+    window.chatbot = { sendQ };
+  })();
+  
+  </script>
+  
 </body>
 </html>
