@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDBussApp · Web</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4F6FA;
+      --surface: #FFFFFF;
+      --surface2: #F7F8FB;
+      --line: rgba(15,37,64,0.08);
+      --text: #0F2540;
+      --muted: #5B6678;
+      --chip: #EEF1F6;
+      --accent: #F59E0B;
+      --accent-ink: #0A0E1A;
+      --shadow-1: 0 1px 2px rgba(15,37,64,0.04);
+      --shadow-2: 0 4px 16px -8px rgba(15,37,64,0.12);
+      --shadow-3: 0 20px 50px -20px rgba(15,37,64,0.25);
+    }
+    [data-theme="dark"] {
+      --bg: #0A0E1A;
+      --surface: #131826;
+      --surface2: #1A2032;
+      --line: rgba(255,255,255,0.08);
+      --text: #F1F4F9;
+      --muted: #8B95A8;
+      --chip: #1F2638;
+      --shadow-1: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-2: 0 4px 16px -8px rgba(0,0,0,0.5);
+      --shadow-3: 0 20px 50px -20px rgba(0,0,0,0.7);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+      font-feature-settings: 'ss01', 'cv11';
+      min-height: 100vh;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Header ─────────────────────────────────────── */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in oklab, var(--bg) 80%, transparent);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .header-inner {
+      max-width: 1320px; margin: 0 auto;
+      padding: 16px 28px;
+      display: flex; align-items: center; gap: 32px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 20px; letter-spacing: -0.01em;
+    }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--accent); color: var(--accent-ink);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px;
+    }
+    .nav { display: flex; gap: 22px; font-size: 14px; font-weight: 600; color: var(--muted); }
+    .nav a { padding: 6px 0; border-bottom: 2px solid transparent; }
+    .nav a.active { color: var(--text); border-bottom-color: var(--accent); }
+    .nav a:hover { color: var(--text); }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 99px;
+      background: transparent; border: 1px solid var(--line);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--text);
+    }
+    .icon-btn:hover { background: var(--surface2); }
+    .lang-toggle {
+      display: flex; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 99px; padding: 3px; gap: 2px;
+    }
+    .lang-toggle button {
+      border: 0; padding: 5px 11px; border-radius: 99px;
+      background: transparent; color: var(--muted);
+      font-size: 12px; font-weight: 700;
+    }
+    .lang-toggle button.active { background: var(--text); color: var(--bg); }
+
+    /* ─── Hero ───────────────────────────────────────── */
+    .hero {
+      max-width: 1320px; margin: 0 auto;
+      padding: 36px 28px 24px;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px;
+      align-items: end;
+    }
+    .hero-eyebrow {
+      font-size: 12px; color: var(--muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 4.5vw, 56px);
+      line-height: 1.02; letter-spacing: -0.025em;
+      margin: 14px 0 14px; font-weight: 800;
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero p { font-size: 17px; color: var(--muted); max-width: 460px; line-height: 1.5; margin: 0; }
+
+    /* ─── Search card ────────────────────────────────── */
+    .search-card {
+      background: var(--surface); border-radius: 22px;
+      padding: 10px; box-shadow: var(--shadow-3);
+      border: 1px solid var(--line);
+    }
+    .search-row {
+      display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;
+    }
+    .field {
+      padding: 14px 18px; border-radius: 14px; background: var(--surface2);
+      border: 1px solid transparent; transition: border-color .15s, background .15s;
+    }
+    .field:focus-within { border-color: var(--accent); background: var(--surface); }
+    .field .lbl { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .field input {
+      width: 100%; border: 0; background: transparent;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      font-family: inherit; padding: 4px 0 0; outline: none;
+    }
+    .field input::placeholder { color: var(--muted); font-weight: 600; }
+    .search-btn {
+      background: var(--text); color: var(--bg);
+      border: 0; border-radius: 14px; padding: 0 26px;
+      font-size: 15px; font-weight: 800;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .search-btn:hover { transform: translateY(-1px); }
+    .quick-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 14px;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 13px; border-radius: 99px;
+      background: var(--chip); color: var(--text);
+      font-size: 12.5px; font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .chip:hover { border-color: var(--line); }
+    .chip svg { width: 14px; height: 14px; }
+
+    /* ─── Main grid ──────────────────────────────────── */
+    .main {
+      max-width: 1320px; margin: 0 auto;
+      padding: 24px 28px 60px;
+      display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px;
+    }
+
+    /* Lines list */
+    .panel {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 20px; padding: 22px;
+      box-shadow: var(--shadow-1);
+    }
+    .panel-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .panel-title { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+    .panel-sub { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+
+    .filters {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .seg-btn {
+      padding: 6px 12px; border-radius: 99px;
+      background: var(--surface2); color: var(--muted); border: 1px solid transparent;
+      font-size: 12px; font-weight: 700;
+    }
+    .seg-btn.active { background: var(--text); color: var(--bg); }
+
+    .line-list { display: flex; flex-direction: column; gap: 8px; }
+    .line-card {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+      padding: 12px 14px; border-radius: 14px;
+      border: 1px solid var(--line);
+      transition: background .15s, transform .15s, border-color .15s;
+    }
+    .line-card:hover { background: var(--surface2); transform: translateX(2px); }
+    .line-card.selected { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 8%, var(--surface)); }
+    .line-badge {
+      min-width: 48px; height: 36px; padding: 0 9px;
+      border-radius: 10px; background: var(--accent); color: var(--accent-ink);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; letter-spacing: -0.01em;
+      font-feature-settings: 'tnum';
+    }
+    .line-info { min-width: 0; }
+    .line-route { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .line-meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; margin-top: 3px; font-weight: 600; }
+    .line-meta svg { width: 13px; height: 13px; }
+    .line-arrival {
+      font-size: 12px; font-weight: 800; color: var(--accent-ink);
+      background: var(--accent); padding: 4px 10px; border-radius: 99px;
+    }
+
+    /* Map + detail panel */
+    .right-stack { display: flex; flex-direction: column; gap: 20px; }
+    .map-card {
+      position: relative; background: var(--surface);
+      border: 1px solid var(--line); border-radius: 20px;
+      overflow: hidden; height: 380px;
+      box-shadow: var(--shadow-1);
+    }
+    .map-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .map-controls {
+      position: absolute; top: 14px; right: 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .map-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-2);
+    }
+    .map-legend {
+      position: absolute; bottom: 14px; left: 14px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 12px; padding: 8px 12px;
+      display: flex; gap: 14px; font-size: 11.5px; font-weight: 700;
+    }
+    .map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 99px; }
+
+    /* Detail panel */
+    .detail-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin: 14px 0 18px;
+    }
+    .stat {
+      background: var(--surface2); border-radius: 12px; padding: 12px;
+    }
+    .stat-lbl { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .stat-val { font-size: 14px; font-weight: 800; margin-top: 4px; line-height: 1.2; }
+    .operator-card {
+      background: color-mix(in oklab, var(--accent) 12%, var(--surface));
+      border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+      border-radius: 14px; padding: 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px;
+    }
+    .operator-card .lbl { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .operator-card .val { font-size: 17px; font-weight: 800; margin-top: 2px; }
+
+    .timeline { position: relative; padding-left: 4px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 9px; top: 12px; bottom: 12px;
+      width: 2px; background: var(--text); opacity: 0.15;
+    }
+    .stop { display: flex; gap: 14px; align-items: flex-start; padding: 6px 0; position: relative; }
+    .stop-dot {
+      width: 14px; height: 14px; border-radius: 99px;
+      background: var(--surface); border: 2px solid var(--text);
+      flex-shrink: 0; margin-top: 3px; position: relative; z-index: 1;
+    }
+    .stop.first .stop-dot, .stop.last .stop-dot,
+    .stop.current .stop-dot { background: var(--accent); border-color: var(--text); }
+    .stop-label { font-size: 13px; font-weight: 700; }
+    .stop.current .stop-label::after {
+      content: 'ahora aquí'; margin-left: 10px; font-size: 10.5px; font-weight: 700;
+      color: var(--accent-ink); background: var(--accent); padding: 2px 8px; border-radius: 99px;
+    }
+
+    /* Footer */
+    .footer {
+      max-width: 1320px; margin: 0 auto;
+      padding: 28px 28px 40px;
+      display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+      font-size: 12px; color: var(--muted); border-top: 1px solid var(--line);
+    }
+    .footer-links { display: flex; gap: 20px; }
+
+    /* Responsive */
+    @media (max-width: 920px) {
+      .header-inner { padding: 14px 18px; gap: 16px; }
+      .nav { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 24px 18px; }
+      .main { grid-template-columns: 1fr; padding: 18px; }
+      .search-row { grid-template-columns: 1fr; }
+      .search-btn { width: 100%; padding: 14px; }
+      .map-card { height: 280px; }
+      .detail-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .hero h1 { font-size: 34px; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">SD</span>
+        <span>SDBuss<span style="color:var(--muted)">App</span></span>
+      </div>
+      <nav class="nav">
+        <a href="#" class="active">Buscar ruta</a>
+        <a href="#">Líneas</a>
+        <a href="#">Mapa</a>
+        <a href="#">Operadoras</a>
+      </nav>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <div class="lang-toggle" id="langToggle">
+          <button data-lang="es" class="active">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="themeToggle" title="Modo oscuro / claro">
+          <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3A7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="icon-btn" title="Mi cuenta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 21C4 16.5 7.5 14 12 14C16.5 14 20 16.5 20 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow" data-i18n="eyebrow">Buses de Santo Domingo</div>
+      <h1 data-i18n="heroTitle">Sabe cuál bus tomar.<br/><span class="accent">En segundos.</span></h1>
+      <p data-i18n="heroSub">Consulta horarios, rutas y operadora de las 26 líneas de la red convencional. Desde tu computador o desde la calle.</p>
+    </div>
+    <div class="search-card">
+      <div class="search-row">
+        <div class="field">
+          <div class="lbl" data-i18n="from">Desde</div>
+          <input type="text" placeholder="Mi ubicación · Av. Quevedo" value="Av. Quevedo" />
+        </div>
+        <div class="field">
+          <div class="lbl" data-i18n="to">Hasta</div>
+          <input type="text" placeholder="¿A dónde vas?" value="Terminal Terrestre" />
+        </div>
+        <button class="search-btn" data-i18n="findBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Buscar
+        </button>
+      </div>
+      <div class="quick-row">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;align-self:center;margin-right:4px;" data-i18n="popular">Populares:</span>
+        <button class="chip">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Hospital
+        </button>
+        <button class="chip">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 12H21" stroke="currentColor" stroke-width="1.8"/></svg>
+          Terminal
+        </button>
+        <button class="chip">Shopping</button>
+        <button class="chip">UTE</button>
+        <button class="chip">Centro</button>
+        <button class="chip">Kasama</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="main">
+    <!-- LEFT — Lines list -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" data-i18n="linesTitle">Líneas hacia Terminal Terrestre</div>
+          <div class="panel-sub"><span id="linesCount">5</span> <span data-i18n="linesAvail">líneas disponibles</span> · <span data-i18n="updated">actualizado hace 2 min</span></div>
+        </div>
+      </div>
+      <div class="filters" id="filters">
+        <button class="seg-btn active" data-filter="all">Todas</button>
+        <button class="seg-btn" data-filter="now">Pasando ahora</button>
+        <button class="seg-btn" data-filter="trans">TRANSMETRO</button>
+        <button class="seg-btn" data-filter="ejec">EJECUTTRANS</button>
+      </div>
+      <div class="line-list" id="lineList"></div>
+    </section>
+
+    <!-- RIGHT — Map + line detail -->
+    <section class="right-stack">
+      <div class="map-card">
+        <svg class="map-svg" viewBox="0 0 800 380" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--line)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="var(--surface2)"/>
+          <rect width="100%" height="100%" fill="url(#grid)"/>
+          <!-- river -->
+          <path d="M-20 280 Q 200 250 400 270 T 820 250 L 820 320 Q 600 340 400 320 T -20 330 Z" fill="color-mix(in oklab, var(--accent) 4%, var(--surface2))" stroke="color-mix(in oklab, var(--text) 8%, transparent)" stroke-width="1"/>
+          <!-- park -->
+          <ellipse cx="160" cy="110" rx="80" ry="55" fill="color-mix(in oklab, var(--text) 4%, transparent)"/>
+          <ellipse cx="640" cy="200" rx="60" ry="45" fill="color-mix(in oklab, var(--text) 4%, transparent)"/>
+          <!-- streets -->
+          <g stroke="var(--line)" stroke-width="1.5" fill="none">
+            <path d="M0 60 H 800"/><path d="M0 150 H 800"/><path d="M0 230 H 800"/>
+            <path d="M120 0 V 380"/><path d="M340 0 V 380"/><path d="M520 0 V 380"/><path d="M700 0 V 380"/>
+          </g>
+          <!-- main avenues -->
+          <g stroke="color-mix(in oklab, var(--text) 18%, transparent)" stroke-width="5" fill="none" stroke-linecap="round">
+            <path d="M-10 190 Q 250 180 400 195 T 820 200"/>
+            <path d="M280 -10 Q 290 150 320 230 T 360 380"/>
+          </g>
+          <!-- 06A active line -->
+          <path d="M80 70 Q 200 100 280 180 Q 380 240 480 280 L 600 340" stroke="var(--accent)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <!-- 18A dotted -->
+          <path d="M60 340 Q 220 300 380 260 T 720 100" stroke="var(--text)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="2 8" opacity="0.55"/>
+          <!-- stops -->
+          <g>
+            <circle cx="80" cy="70" r="7" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="280" cy="180" r="7" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="480" cy="280" r="7" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="600" cy="340" r="9" fill="var(--accent)" stroke="var(--text)" stroke-width="2"/>
+          </g>
+          <!-- you here -->
+          <g>
+            <circle cx="220" cy="170" r="18" fill="var(--accent)" fill-opacity="0.18"/>
+            <circle cx="220" cy="170" r="10" fill="var(--accent)" stroke="var(--surface)" stroke-width="3"/>
+          </g>
+          <!-- labels -->
+          <g font-family="Manrope" font-size="11" font-weight="700" fill="var(--text)">
+            <rect x="86" y="50" width="84" height="20" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+            <text x="128" y="64" text-anchor="middle">Centro Rehab.</text>
+            <rect x="540" y="320" width="100" height="20" rx="6" fill="var(--text)"/>
+            <text x="590" y="334" text-anchor="middle" fill="var(--bg)">Terminal</text>
+          </g>
+        </svg>
+        <div class="map-controls">
+          <button class="map-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button class="map-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button class="map-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 1V4M12 20V23M1 12H4M20 12H23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background:var(--accent)"></span>Línea 06A</span>
+          <span><span class="legend-dot" style="background:var(--text);opacity:.5"></span>Línea 18A</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div class="line-badge" style="min-width:60px;height:46px;font-size:18px;">06A</div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Ruta seleccionada</div>
+            <div style="font-size:18px;font-weight:800;letter-spacing:-0.01em;margin-top:2px;">Centro de Rehabilitación ↔ Terminal Terrestre</div>
+          </div>
+          <button class="icon-btn" title="Guardar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L14.5 9L21 9.5L16 14L17.5 20.5L12 17L6.5 20.5L8 14L3 9.5L9.5 9L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="detail-grid">
+          <div class="stat">
+            <div class="stat-lbl" data-i18n="schedule">Horario</div>
+            <div class="stat-val">05:30 – 20:15</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl" data-i18n="interval">Frecuencia</div>
+            <div class="stat-val">cada 12 min</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl" data-i18n="cycle">Ciclo · Unidades</div>
+            <div class="stat-val">69 min · 6 buses</div>
+          </div>
+        </div>
+
+        <div class="operator-card">
+          <div>
+            <div class="lbl" data-i18n="operator">Opera esta semana · Semana 14</div>
+            <div class="val">TRANSMETRO</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;">↻ rota cada lunes</div>
+            <div style="font-size:11.5px;font-weight:700;margin-top:2px;">próxima: EJECUTTRANS</div>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">
+          Itinerario · Ida <span style="float:right;opacity:.7;">11.06 km</span>
+        </div>
+        <div class="timeline">
+          <div class="stop first"><div class="stop-dot"></div><div class="stop-label">Centro de Rehabilitación</div></div>
+          <div class="stop"><div class="stop-dot"></div><div class="stop-label">Av. Anturios · Coop. Nuevo Amanecer</div></div>
+          <div class="stop current"><div class="stop-dot"></div><div class="stop-label">Av. Quevedo</div></div>
+          <div class="stop"><div class="stop-dot"></div><div class="stop-label">Av. Esmeraldas</div></div>
+          <div class="stop last"><div class="stop-dot"></div><div class="stop-label">Redondel del Terminal Terrestre</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>SDBussApp · proyecto independiente con datos públicos. No afiliado a operadoras ni entidades públicas.</div>
+    <div class="footer-links">
+      <a href="#">Acerca</a>
+      <a href="#">Datos abiertos</a>
+      <a href="#">Contacto</a>
+    </div>
+  </footer>
+
+  <script>
+    // ─── Data (subset of PDF) ──────────────────────────────────
+    const LINES = [
+      { code: '06A', from: 'Centro Rehab.',     to: 'Terminal Terrestre', hours: '05:30–20:15', interval: 12, op: 'TRANSMETRO',  eta: 4 },
+      { code: '18A', from: 'Quevedo Km 8',      to: 'Terminal Terrestre', hours: '05:28–22:03', interval: 12, op: 'TRANSMETRO',  eta: 9 },
+      { code: '16',  from: 'Chiguilpe',         to: 'Terminal Terrestre', hours: '05:44–20:37', interval: 8,  op: 'EJECUTTRANS', eta: 3 },
+      { code: '11A', from: 'El Proletariado',   to: 'Terminal Terrestre', hours: '05:37–22:00', interval: 12, op: 'TRANSMETRO',  eta: 11 },
+      { code: '20',  from: 'Ciudad Verde',      to: 'Terminal Terrestre', hours: '05:40–20:55', interval: 12, op: 'EJECUTTRANS', eta: 7 },
+      { code: '08A', from: 'Ramiro Gallo',      to: 'Terminal Terrestre', hours: '05:45–21:30', interval: 10, op: 'TRANSMETRO',  eta: 6 },
+    ];
+
+    const I18N = {
+      es: {
+        eyebrow: 'Buses de Santo Domingo',
+        heroTitle: 'Sabe cuál bus tomar.<br/><span class="accent">En segundos.</span>',
+        heroSub: 'Consulta horarios, rutas y operadora de las 26 líneas de la red convencional. Desde tu computador o desde la calle.',
+        from: 'Desde', to: 'Hasta', findBtn: 'Buscar',
+        popular: 'Populares:',
+        linesTitle: 'Líneas hacia Terminal Terrestre',
+        linesAvail: 'líneas disponibles', updated: 'actualizado hace 2 min',
+        schedule: 'Horario', interval: 'Frecuencia', cycle: 'Ciclo · Unidades',
+        operator: 'Opera esta semana · Semana 14',
+        nav: ['Buscar ruta', 'Líneas', 'Mapa', 'Operadoras'],
+      },
+      en: {
+        eyebrow: 'Santo Domingo buses',
+        heroTitle: 'Know which bus to take.<br/><span class="accent">In seconds.</span>',
+        heroSub: 'Check schedules, routes and operator for all 26 lines of the conventional network. From your computer or from the street.',
+        from: 'From', to: 'To', findBtn: 'Search',
+        popular: 'Popular:',
+        linesTitle: 'Lines to Bus Terminal',
+        linesAvail: 'lines available', updated: 'updated 2 min ago',
+        schedule: 'Hours', interval: 'Frequency', cycle: 'Cycle · Units',
+        operator: 'This week’s operator · Week 14',
+        nav: ['Find route', 'Lines', 'Map', 'Operators'],
+      },
+    };
+
+    // ─── Render line list ──────────────────────────────────────
+    function renderLines(filter = 'all') {
+      const list = document.getElementById('lineList');
+      let filtered = LINES;
+      if (filter === 'now')  filtered = LINES.filter(l => l.eta <= 6);
+      if (filter === 'trans') filtered = LINES.filter(l => l.op === 'TRANSMETRO');
+      if (filter === 'ejec')  filtered = LINES.filter(l => l.op === 'EJECUTTRANS');
+
+      list.innerHTML = filtered.map((l, i) => `
+        <div class="line-card ${i === 0 && filter === 'all' ? 'selected' : ''}">
+          <div class="line-badge">${l.code}</div>
+          <div class="line-info">
+            <div class="line-route">${l.from} → ${l.to}</div>
+            <div class="line-meta">
+              <span><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7V12L15 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> cada ${l.interval} min</span>
+              <span>${l.hours}</span>
+              <span style="color:${l.op === 'TRANSMETRO' ? '#3B82F6' : '#10B981'};font-weight:700;">● ${l.op}</span>
+            </div>
+          </div>
+          <div class="line-arrival">~${l.eta} min</div>
+        </div>
+      `).join('');
+      document.getElementById('linesCount').textContent = filtered.length;
+    }
+
+    // ─── Filters ───────────────────────────────────────────────
+    document.getElementById('filters').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#filters .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLines(btn.dataset.filter);
+    });
+
+    // ─── Lang ──────────────────────────────────────────────────
+    function setLang(lang) {
+      const dict = I18N[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key] !== undefined) el.innerHTML = dict[key];
+      });
+      document.querySelectorAll('.nav a').forEach((a, i) => a.textContent = dict.nav[i]);
+      document.documentElement.lang = lang;
+    }
+    document.getElementById('langToggle').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#langToggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setLang(btn.dataset.lang);
+    });
+
+    // ─── Theme ─────────────────────────────────────────────────
+    const themeIcon = document.getElementById('themeIcon');
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const cur = document.body.dataset.theme;
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.body.dataset.theme = next;
+      themeIcon.innerHTML = next === 'dark'
+        ? '<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2V4M12 20V22M2 12H4M20 12H22M4.93 4.93L6.34 6.34M17.66 17.66L19.07 19.07M4.93 19.07L6.34 17.66M17.66 6.34L19.07 4.93" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+        : '<path d="M21 12.79A9 9 0 1 1 11.21 3A7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>';
+    });
+
+    renderLines();
+  </script>
+</body>
+</html>

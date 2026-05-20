@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>SDBussApp · Hi-Fi (Print)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --page-bg: #0A0E1A; --page-text: #F1F4F9; --page-muted: #8B95A8; --page-line: rgba(255,255,255,0.08); }
+    @page { size: A4 landscape; margin: 1cm; }
+    html, body {
+      margin: 0; padding: 0; background: var(--page-bg); color: var(--page-text);
+      font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    * { box-sizing: border-box; }
+    .page {
+      width: 27.7cm; min-height: 19cm; padding: 0.5cm 0.5cm 0.7cm;
+      margin: 0 auto 0.6cm; background: var(--page-bg);
+      page-break-after: always; break-after: page; break-inside: avoid;
+      display: flex; flex-direction: column;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page-head {
+      border-bottom: 1px solid var(--page-line);
+      padding-bottom: 10px; margin-bottom: 18px;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .page-sub { font-size: 13px; color: var(--page-muted); margin-top: 4px; font-weight: 500; }
+    .page-meta { font-size: 11px; color: var(--page-muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .phones { display: flex; gap: 28px; align-items: flex-start; justify-content: center; flex-wrap: wrap; flex: 1; }
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; break-inside: avoid; }
+    .phone-label {
+      font-size: 12px; font-weight: 700; color: var(--page-text);
+      border: 1px solid var(--page-line); border-radius: 999px;
+      padding: 4px 14px; background: rgba(255,255,255,0.04);
+      letter-spacing: 0.02em;
+    }
+    .cover {
+      width: 27.7cm; min-height: 19cm; padding: 2.2cm;
+      margin: 0 auto 0.6cm; background: var(--page-bg);
+      page-break-after: always; break-after: page;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .cover-eyebrow { font-size: 12px; color: var(--page-muted); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; }
+    .cover-title { font-size: 110px; font-weight: 800; line-height: 0.9; letter-spacing: -0.03em; margin-top: 14px; }
+    .cover-accent { color: #F59E0B; }
+    .cover-sub { font-size: 22px; color: var(--page-muted); margin-top: 22px; max-width: 18cm; line-height: 1.35; font-weight: 500; }
+    .cover-legend { display: flex; gap: 30px; flex-wrap: wrap; font-size: 14px; color: var(--page-text); }
+    .cover-legend b { color: #F59E0B; font-weight: 800; font-size: 18px; margin-right: 6px; }
+    .cover-meta { font-size: 12px; color: var(--page-muted); display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+    .blob { position: absolute; right: -120px; top: -120px; width: 480px; height: 480px; border-radius: 999px; background: radial-gradient(circle, #F59E0B33 0%, transparent 70%); }
+    @media print {
+      body, .page, .cover { background: var(--page-bg) !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="common.jsx"></script>
+  <script type="text/babel" src="hifi-system.jsx"></script>
+  <script type="text/babel" src="hifi-screens.jsx"></script>
+
+  <script type="text/babel">
+    function PrintApp() {
+      const t = HF_I18N.es;
+      const dark = true;
+      const accent = '#F59E0B';
+      return (
+        <>
+          {/* Cover */}
+          <div className="cover">
+            <div className="blob" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div className="cover-eyebrow">Hi-Fi Wireframes · v1</div>
+              <div className="cover-title">SDBuss<span className="cover-accent">App</span></div>
+              <div className="cover-sub">
+                Cuatro enfoques de presentación de la información de las líneas de bus de Santo Domingo, optimizado para uso en el celular desde la calle.
+              </div>
+            </div>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div className="cover-legend">
+                <span><b>A</b>Buscador</span>
+                <span><b>B</b>Destinos rápidos</span>
+                <span><b>C</b>Mapa primero</span>
+                <span><b>D</b>Asistente</span>
+              </div>
+              <div className="cover-meta">
+                <span>Proyecto independiente</span>
+                <span>·</span>
+                <span>Datos públicos · municipalidad de Santo Domingo</span>
+                <span>·</span>
+                <span>No afiliado a operadoras ni entidades públicas</span>
+              </div>
+            </div>
+          </div>
+
+          {/* One page per approach */}
+          {HF_APPROACHES.map((ap, i) => (
+            <div className="page" key={ap.id}>
+              <div className="page-head">
+                <div>
+                  <div className="page-title">{ap.title}</div>
+                  <div className="page-sub">{ap.subtitle}</div>
+                </div>
+                <div className="page-meta">{String(i + 1).padStart(2, '0')} / {String(HF_APPROACHES.length).padStart(2, '0')}</div>
+              </div>
+              <div className="phones">
+                {ap.screens.map(s => (
+                  <div className="phone-wrap" key={s.id}>
+                    <Phone width={300} height={640} dark={dark} accent={accent}>
+                      <s.Comp t={t} dark={dark} />
+                    </Phone>
+                    <div className="phone-label">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<PrintApp />);
+
+    // Auto-print after fonts + JSX render
+    (async () => {
+      try { await document.fonts.ready; } catch (e) {}
+      await new Promise(r => setTimeout(r, 800));
+      window.print();
+    })();
+  </script>
+</body>
+</html>

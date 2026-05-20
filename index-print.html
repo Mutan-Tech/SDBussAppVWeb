@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>SDBussApp · Wireframes (Print)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4 landscape; margin: 1cm; }
+    html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Kalam', cursive; color: #1a1a1a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page {
+      width: 27.7cm;
+      min-height: 19cm;
+      padding: 0.4cm 0.4cm 0.6cm;
+      box-sizing: border-box;
+      margin: 0 auto 0.6cm;
+      background: #f0eee9;
+      page-break-after: always;
+      break-after: page;
+      break-inside: avoid;
+      display: flex;
+      flex-direction: column;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page-head {
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 6px; margin-bottom: 14px;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .page-title { font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; line-height: 1; }
+    .page-sub { font-size: 13px; opacity: 0.65; margin-top: 4px; }
+    .page-meta { font-size: 11px; opacity: 0.55; font-family: 'Kalam', cursive; }
+    .phones { display: flex; gap: 22px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; break-inside: avoid; }
+    .phone-label {
+      font-family: 'Caveat', cursive; font-size: 16px; font-weight: 600;
+      border: 1.5px solid #1a1a1a; border-radius: 999px;
+      padding: 2px 12px; background: #fff;
+    }
+    .cover {
+      width: 27.7cm; min-height: 19cm; padding: 2cm;
+      box-sizing: border-box; margin: 0 auto 0.6cm;
+      page-break-after: always; break-after: page;
+      display: flex; flex-direction: column; justify-content: space-between;
+      background: #f0eee9;
+    }
+    .cover-title { font-family: 'Caveat', cursive; font-size: 96px; font-weight: 700; line-height: 0.95; }
+    .cover-sub { font-size: 22px; opacity: 0.7; margin-top: 8px; max-width: 18cm; line-height: 1.3; }
+    .cover-meta { font-size: 13px; opacity: 0.55; display: flex; gap: 24px; flex-wrap: wrap; }
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; opacity: 0.75; }
+    .legend b { font-family: 'Caveat', cursive; font-size: 18px; font-weight: 700; }
+    @media print {
+      body, .page, .cover { background: #f0eee9 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="common.jsx"></script>
+  <script type="text/babel" src="approaches.jsx"></script>
+
+  <script type="text/babel">
+    function PrintApp() {
+      const t = I18N.es;
+      return (
+        <>
+          {/* Cover */}
+          <div className="cover">
+            <div>
+              <div style={{ fontFamily: 'Kalam, cursive', fontSize: 14, opacity: 0.6, letterSpacing: 2, textTransform: 'uppercase' }}>Wireframes · v1</div>
+              <div className="cover-title">SDBussApp</div>
+              <div className="cover-sub">
+                Cuatro enfoques para presentar la información de las líneas de bus de Santo Domingo en el celular, desde la calle.
+              </div>
+            </div>
+            <div>
+              <div className="legend">
+                <span><b>A</b> · Buscador directo</span>
+                <span><b>B</b> · Destinos rápidos</span>
+                <span><b>C</b> · Mapa primero</span>
+                <span><b>D</b> · Conversacional</span>
+              </div>
+              <div style={{ height: 18 }} />
+              <div className="cover-meta">
+                <span>Proyecto independiente</span>
+                <span>·</span>
+                <span>Datos públicos de la municipalidad</span>
+                <span>·</span>
+                <span>No afiliado a operadoras ni entidades públicas</span>
+              </div>
+            </div>
+          </div>
+
+          {/* One page per approach */}
+          {APPROACHES.map((ap, i) => (
+            <div className="page" key={ap.id}>
+              <div className="page-head">
+                <div>
+                  <div className="page-title">{ap.title}</div>
+                  <div className="page-sub">{ap.subtitle}</div>
+                </div>
+                <div className="page-meta">{i + 1} / {APPROACHES.length}</div>
+              </div>
+              <div className="phones">
+                {ap.screens.map(s => (
+                  <div className="phone-wrap" key={s.id}>
+                    <SketchyPhone width={290} height={580} dark={false} accent="#c89432">
+                      <s.Comp t={t} />
+                    </SketchyPhone>
+                    <div className="phone-label">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<PrintApp />);
+
+    // Auto-print once fonts + JSX are ready
+    (async () => {
+      try { await document.fonts.ready; } catch (e) {}
+      await new Promise(r => setTimeout(r, 700));
+      window.print();
+    })();
+  </script>
+</body>
+</html>
